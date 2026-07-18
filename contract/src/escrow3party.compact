@@ -269,7 +269,8 @@ circuit computeDisputeDistribution(resolution: Field): [Field, Field, Field] {
 // Seller initializes the escrow with goods hash and deposits stake
 export circuit sellerInitialize(
   escrow3: EscrowTerms,
-  pickupSecretHashInput: Bytes<32>
+  pickupSecretHashInput: Bytes<32>,
+  deliverySecretHashInput: Bytes<32>
 ): []{
   assert(state == EscrowState.UNINITIALIZED, "Escrow already initialized");
   assert(escrow3.paymentAmount > 0, "Payment amount must be positive");
@@ -283,25 +284,26 @@ export circuit sellerInitialize(
   const sellerAddr = publicKey(localSellerKey(), sequence as Field as Bytes<32>);
 
   terms =EscrowTerms {
-  goodsHash: escrow3.goodsHash,         // Hash of goods manifest (immutable)
-  paymentAmount: escrow3.paymentAmount,           // Purchase price + logistics fee
-  paymentAmountSplit: escrow3.paymentAmountSplit,      // Payment amount split between buyer and seller in case of dispute
-  sellerStake: escrow3.sellerStake,             // Seller collateral
-  buyerStake: escrow3.buyerStake,              // Buyer security deposit
-  logisticsStake: escrow3.logisticsStake,          // Logistics collateral
-  logisticsStakeTimeOut: escrow3.logisticsStakeTimeOut,   // Logistics collateral split between buyer and seller in case of timeout
-  deliveryDeadline: escrow3.deliveryDeadline,        // Block height deadline
-  logisticsFee: escrow3.logisticsFee             // Fee to logistics provider
+  goodsHash: disclose(escrow3.goodsHash),         // Hash of goods manifest (immutable)
+  paymentAmount: disclose(escrow3.paymentAmount),           // Purchase price + logistics fee
+  paymentAmountSplit: disclose(escrow3.paymentAmountSplit),      // Payment amount split between buyer and seller in case of dispute
+  sellerStake: disclose(escrow3.sellerStake),             // Seller collateral
+  buyerStake: disclose(escrow3.buyerStake),              // Buyer security deposit
+  logisticsStake: disclose(escrow3.logisticsStake),          // Logistics collateral
+  logisticsStakeTimeOut: disclose(escrow3.logisticsStakeTimeOut),   // Logistics collateral split between buyer and seller in case of timeout
+  deliveryDeadline: disclose(escrow3.deliveryDeadline),        // Block height deadline
+  logisticsFee: disclose(escrow3.logisticsFee)             // Fee to logistics provider
   };
 
   seller = PartyInfo {
     address: sellerAddr,
-    stake: escrow3.sellerStake,
+    stake: disclose(escrow3.sellerStake),
     deposited: true,
-    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([sellerAddr])
+    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([disclose(sellerAddr)])
   };
 
-  pickupSecretHash = pickupSecretHashInput;
+  pickupSecretHash = disclose(pickupSecretHashInput);
+  deliverySecretHash = disclose(deliverySecretHashInput);
   pickupConfirmed = false;
   deliveryConfirmed = false;
 
@@ -310,52 +312,42 @@ export circuit sellerInitialize(
 }
 
 // ============================================================================
-// PHASE 2: BUYER DEPOSIT
+// PHASE 2: BUYER DEPOSIT INITIALIZATION
 // ============================================================================
 
 // Buyer deposits payment amount + buyer stake
-export circuit buyerDeposit(
-  deliverySecretHashInput: Bytes<32>
-): [] {
+export circuit buyerDeposit(): [] {
   assert(state == EscrowState.SELLER_DEPOSITED, "Seller must deposit first");
-  assert(paymentAmount == terms.paymentAmount, "Payment amount mismatch");
-  assert(buyerStake == terms.buyerStake, "Buyer stake mismatch");
-
   const buyerAddr = publicKey(localBuyerKey(), sequence as Field as Bytes<32>);
 
   buyer = PartyInfo {
-    address: buyerAddr,
-    stake: buyerStake,
+    address: disclose(buyerAddr),
+    stake: terms.buyerStake,
     deposited: true,
-    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([buyerAddr])
+    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([disclose(buyerAddr)])
   };
-
-  deliverySecretHash = deliverySecretHashInput;
-
   state = EscrowState.BUYER_DEPOSITED;
 
 }
 
 // ============================================================================
-// PHASE 3: LOGISTICS DEPOSIT
+// PHASE 3: LOGISTICS DEPOSIT INITIALIZATION
 // ============================================================================
 
 // Logistics provider deposits their stake
-export circuit logisticsDeposit(logisticsStake: Uint<64>): [] {
+export circuit logisticsDeposit(): [] {
   assert(state == EscrowState.BUYER_DEPOSITED, "Buyer must deposit first");
-  assert(logisticsStake == terms.logisticsStake, "Logistics stake mismatch");
 
   const logisticsAddr = publicKey(localLogisticsKey(), sequence as Field as Bytes<32>);
 
   logistics = PartyInfo {
     address: disclose(logisticsAddr),
-    stake: disclose(logisticsStake),
+    stake: terms.logisticsStake,
     deposited: true,
     pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([disclose(logisticsAddr)])
   };
 
   state = EscrowState.LOGISTICS_DEPOSITED;
-
 
 }
 
