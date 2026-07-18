@@ -430,7 +430,7 @@ export circuit raiseDispute(reason: DisputeReason): [] {
 
   dispute = DisputeInfo {
     raisedBy: PartyRole.BUYER,
-    reason: reason,
+    reason: disclose(reason),
     raisedAt: currentBlockHeight(),
     resolved: false,
     resolution: 0
