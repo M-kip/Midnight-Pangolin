@@ -142,21 +142,21 @@ circuit assertSeller(): [] {
 // Verify caller is the buyer
 circuit assertBuyer(): [] {
   assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
-  assert(buyer.address == publicKey(localBuyerKey(), sequence.current as Field as Bytes<32>), "Not buyer");
+  assert(buyer.address == publicKey(localBuyerKey(), sequence as Field as Bytes<32>), "Not buyer");
   assert(buyer.deposited, "Buyer not deposited");
 }
 
 // Verify caller is the logistics provider
 circuit assertLogistics(): [] {
   assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
-  assert(logistics.address == publicKey(localLogisticsKey(), sequence.current as Field as Bytes<32>), "Not logistics");
+  assert(logistics.address == publicKey(localLogisticsKey(), sequence as Field as Bytes<32>), "Not logistics");
   assert(logistics.deposited, "Logistics not deposited");
 }
 
 // Verify caller is either buyer or seller
 circuit assertBuyerOrSeller(): [] {
   assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
-  const caller = publicKey(localSellerKey(), sequence.current as Field as Bytes<32>);
+  const caller = publicKey(localSellerKey(), sequence as Field as Bytes<32>);
   assert(caller == seller.address || caller == buyer.address, "Not buyer or seller");
   assert((caller == seller.address && seller.deposited) || (caller == buyer.address && buyer.deposited), "Party not deposited");
 }
