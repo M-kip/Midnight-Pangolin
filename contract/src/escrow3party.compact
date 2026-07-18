@@ -37,7 +37,7 @@ export enum DisputeReason {
 export struct PartyInfo {
   address: Bytes<32>,
   stake: Field,
-  deposited: boolean,
+  deposited: Boolean,
   pubKeyHash: Bytes<32>
 }
 
@@ -57,7 +57,7 @@ export struct DisputeInfo {
   raisedBy: PartyRole,
   reason: DisputeReason,
   raisedAt: Field,                // Block height when raised
-  resolved: Bool,
+  resolved: Boolean,
   resolution: Field               // 0 = seller wins, 1 = buyer wins, 2 = logistics wins, 3 = split
 }
 
@@ -73,8 +73,8 @@ export ledger logistics: PartyInfo;
 export ledger dispute: DisputeInfo;
 export ledger pickupSecretHash: Bytes<32>;      // Hash of seller's pickup secret
 export ledger deliverySecretHash: Bytes<32>;    // Hash of buyer's delivery secret
-export ledger pickupConfirmed: boolean;            // Logistics proved pickup
-export ledger deliveryConfirmed: boolean;          // Buyer confirmed delivery
+export ledger pickupConfirmed: Boolean;            // Logistics proved pickup
+export ledger deliveryConfirmed: Boolean;          // Buyer confirmed delivery
 export ledger sequence: Counter;                // For key derivation
 
 
@@ -157,7 +157,7 @@ circuit currentBlockHeight(): Field {
 }
 
 // Check if deadline has passed
-circuit deadlinePassed(): boolean {
+circuit deadlinePassed(): Boolean {
   return currentBlockHeight() > terms.deliveryDeadline;
 }
 
@@ -177,7 +177,7 @@ circuit calculateDeliverySecretHash(secret: Bytes<32>): Bytes<32> {
 }
 
 // Verify pickup secret matches hash
-circuit verifyPickupSecret(secret: Bytes<32>): boolean {
+circuit verifyPickupSecret(secret: Bytes<32>): Boolean {
   // Use Vector<2, ...> to safely hash the domain string and the secret together
   const calculatedHash = persistentHash<Vector<2, Bytes<32>>>([
     pad(32, "escrow:pickup:"), 
@@ -188,7 +188,7 @@ circuit verifyPickupSecret(secret: Bytes<32>): boolean {
 }
 
 // Verify delivery secret matches hash
-circuit verifyDeliverySecret(secret: Bytes<32>): boolean {
+circuit verifyDeliverySecret(secret: Bytes<32>): Boolean {
   // Use Vector<2, ...> to safely hash the domain string and the secret together
   const calculatedHash = persistentHash<Vector<2, Bytes<32>>>([
     pad(32, "escrow:delivery:"), 
@@ -487,15 +487,15 @@ export circuit getDispute(): DisputeInfo {
   return dispute;
 }
 
-export circuit isPickupConfirmed(): boolean {
+export circuit isPickupConfirmed(): Boolean {
   return pickupConfirmed;
 }
 
-export circuit isDeliveryConfirmed(): boolean {
+export circuit isDeliveryConfirmed(): Boolean {
   return deliveryConfirmed;
 }
 
-export circuit isDeadlinePassed(): boolean {
+export circuit isDeadlinePassed(): Boolean {
   return deadlinePassed();
 }
 
