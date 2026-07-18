@@ -272,7 +272,7 @@ export circuit sellerInitialize(
 
   const sellerAddr = publicKey(localSellerKey(), sequence as Field as Bytes<32>);
 
-  terms = escrow3PartyTerms();
+  terms = disclose(escrow3PartyTerms());
 
   seller = PartyInfo {
     address: disclose(sellerAddr),
