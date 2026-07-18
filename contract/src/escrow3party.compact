@@ -88,7 +88,8 @@ witness localLogisticsKey(): Bytes<32>;
 witness pickupSecret(): Bytes<32>;              // Raw pickup secret from seller
 witness deliverySecret(): Bytes<32>;
 witness disputeReason(): DisputeReason;
-witness disputeResolution(): Uint<64>;         // Witnessed dispute resolution
+witness disputeResolution(): Uint<64>;       // Witnessed dispute resolution
+witness logisticStakeVal(): Uint<64>;
 
 // ============================================================================
 // CONSTRUCTOR
@@ -316,8 +317,8 @@ export circuit sellerInitialize(
 
 // Buyer deposits payment amount + buyer stake
 export circuit buyerDeposit(
-  paymentAmount: Field,
-  buyerStake: Field,
+  paymentAmount: Uint<64>,
+  buyerStake: Uint<64>,
   deliverySecretHashInput: Bytes<32>
 ): [] {
   assert(state == EscrowState.SELLER_DEPOSITED, "Seller must deposit first");
@@ -344,7 +345,7 @@ export circuit buyerDeposit(
 // ============================================================================
 
 // Logistics provider deposits their stake
-export circuit logisticsDeposit(logisticsStake: Field): [] {
+export circuit logisticsDeposit(logisticsStake: Uint<64>): [] {
   assert(state == EscrowState.BUYER_DEPOSITED, "Buyer must deposit first");
   assert(logisticsStake == terms.logisticsStake, "Logistics stake mismatch");
 
@@ -352,7 +353,7 @@ export circuit logisticsDeposit(logisticsStake: Field): [] {
 
   logistics = PartyInfo {
     address: logisticsAddr,
-    stake: logisticsStake,
+    stake: disclose(logisticsStake),
     deposited: true,
     pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([logisticsAddr])
   };
