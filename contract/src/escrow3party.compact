@@ -220,28 +220,31 @@ circuit computeTimeoutDistribution(): [Field, Field, Field] {
   return [sellerAmount, buyerAmount, logisticsAmount];
 }
 
+
 // Compute dispute resolution distribution
 circuit computeDisputeDistribution(resolution: Field): [Field, Field, Field] {
   // Resolution: 0=seller wins, 1=buyer wins, 2=logistics wins, 3=split
-  switch (resolution) {
-    case 0: { // Seller wins - goods as described
-      return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
-    }
-    case 1: { // Buyer wins - goods not as described
+  
+  if (resolution == 0) { // Seller wins - goods as described
+    return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
+  } else {
+    if (resolution == 1) { // Buyer wins - goods not as described
       return [terms.sellerStake, terms.paymentAmount + terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
-    }
-    case 2: { // Logistics wins - buyer refused valid delivery
-      return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
-    }
-    case 3: { // Split - partial fault
-      const halfPayment = terms.paymentAmount / 2;
-      return [halfPayment + terms.sellerStake, halfPayment + terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
-    }
-    default: {
-      return [terms.sellerStake, terms.buyerStake, terms.logisticsStake];
+    } else {
+      if (resolution == 2) { // Logistics wins - buyer refused valid delivery
+        return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
+      } else {
+        if (resolution == 3) { // Split - partial fault
+          const halfPayment = terms.paymentAmount / 2;
+          return [halfPayment + terms.sellerStake, halfPayment + terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
+        } else { // Default fallback
+          return [terms.sellerStake, terms.buyerStake, terms.logisticsStake];
+        }
+      }
     }
   }
 }
+
 
 // ============================================================================
 // PHASE 1: SELLER INITIALIZATION & DEPOSIT
