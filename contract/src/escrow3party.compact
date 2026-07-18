@@ -89,7 +89,7 @@ witness pickupSecret(): Bytes<32>;              // Raw pickup secret from seller
 witness deliverySecret(): Bytes<32>;
 witness disputeReason(): DisputeReason;
 witness disputeResolution(): Uint<64>;
-witness Escrow3PartyTerms(): EscrowTerms;       // Witnessed dispute resolution
+witness escrow3PartyTerms(): EscrowTerms;       // Witnessed dispute resolution
 // ============================================================================
 // CONSTRUCTOR
 // ============================================================================
@@ -261,7 +261,6 @@ export circuit sellerInitialize(
   pickupSecretHashInput: Bytes<32>,
   deliverySecretHashInput: Bytes<32>
 ): []{
-  escrow3 = Escrow3PartyTerms();
   assert(state == EscrowState.UNINITIALIZED, "Escrow already initialized");
   assert(escrow3.paymentAmount > 0, "Payment amount must be positive");
   assert(escrow3.sellerStake > 0, "Seller stake must be positive");
@@ -273,17 +272,7 @@ export circuit sellerInitialize(
 
   const sellerAddr = publicKey(localSellerKey(), sequence as Field as Bytes<32>);
 
-  terms =EscrowTerms {
-  goodsHash: disclose(escrow3.goodsHash),         // Hash of goods manifest (immutable)
-  paymentAmount: disclose(escrow3.paymentAmount),           // Purchase price + logistics fee
-  paymentAmountSplit: disclose(escrow3.paymentAmountSplit),      // Payment amount split between buyer and seller in case of dispute
-  sellerStake: disclose(escrow3.sellerStake),             // Seller collateral
-  buyerStake: disclose(escrow3.buyerStake),              // Buyer security deposit
-  logisticsStake: disclose(escrow3.logisticsStake),          // Logistics collateral
-  logisticsStakeTimeOut: disclose(escrow3.logisticsStakeTimeOut),   // Logistics collateral split between buyer and seller in case of timeout
-  deliveryDeadline: disclose(escrow3.deliveryDeadline),        // Block height deadline
-  logisticsFee: disclose(escrow3.logisticsFee)             // Fee to logistics provider
-  };
+  terms = escrow3PartyTerms();
 
   seller = PartyInfo {
     address: disclose(sellerAddr),
