@@ -434,8 +434,7 @@ export circuit sellerRaiseDispute(reason: DisputeReason): [] {
     raisedBy: PartyRole.SELLER,
     reason: reason,
     raisedAt: currentBlockHeight(),
-    resolved: false,
-    resolution: 0n
+    resolved: false
   };
 
   state = EscrowState.DISPUTED;
