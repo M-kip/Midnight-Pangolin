@@ -460,7 +460,7 @@ export circuit sellerRaiseDispute(reason: DisputeReason): [] {
 // For now, we simulate with a circuit that requires mediator key
 witness mediatorKey(): Bytes<32>;
 
-export circuit resolveDispute(resolution: Field, mediatorSig: Bytes<32>): [] {
+export circuit resolveDispute(resolution: Uint<64>, mediatorSig: Bytes<32>): [] {
   assert(state == EscrowState.DISPUTED, "No active dispute");
   assert(!dispute.resolved, "Dispute already resolved");
   assert(resolution <= 3, "Invalid resolution");
