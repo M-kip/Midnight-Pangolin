@@ -95,26 +95,26 @@ constructor() {
   sequence.increment(1);
 
   // Initialize empty party info
-  seller = {
+  seller = PartyInfo {
     address: new Bytes<32>(),
     stake: 0n,
     deposited: false,
     pubKeyHash: new Bytes<32>()
   };
-  buyer = {
+  buyer = PartyInfo {
     address: new Bytes<32>(),
     stake: 0n,
     deposited: false,
     pubKeyHash: new Bytes<32>()
   };
-  logistics = {
+  logistics = PartyInfo {
     address: new Bytes<32>(),
     stake: 0n,
     deposited: false,
     pubKeyHash: new Bytes<32>()
   };
 
-  dispute = {
+  dispute = DisputeInfo {
     raisedBy: PartyRole.SELLER,
     reason: DisputeReason.NONE,
     raisedAt: 0n,
