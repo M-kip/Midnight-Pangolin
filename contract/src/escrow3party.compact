@@ -37,7 +37,7 @@ export enum DisputeReason {
 export struct PartyInfo {
   address: Bytes<32>,
   stake: Field,
-  deposited: Bool,
+  deposited: boolean,
   pubKeyHash: Bytes<32>
 }
 
