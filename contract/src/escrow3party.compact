@@ -355,7 +355,7 @@ export circuit logisticsDeposit(logisticsStake: Uint<64>): [] {
     address: disclose(logisticsAddr),
     stake: disclose(logisticsStake),
     deposited: true,
-    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([logisticsAddr])
+    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([disclose(logisticsAddr)])
   };
 
   state = EscrowState.LOGISTICS_DEPOSITED;
