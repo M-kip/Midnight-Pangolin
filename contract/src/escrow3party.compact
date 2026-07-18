@@ -96,22 +96,18 @@ constructor() {
 
   // Initialize empty party info
   seller = PartyInfo {
-    stake: 0n,
     deposited: false
   };
   buyer = PartyInfo {
-    stake: 0n,
     deposited: false
   };
   logistics = PartyInfo {
-    stake: 0n,
     deposited: false
   };
 
   dispute = DisputeInfo {
     raisedBy: PartyRole.SELLER,
     reason: DisputeReason.NONE,
-    raisedAt: 0n,
     resolved: true,
     resolution: 0
   };
