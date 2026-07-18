@@ -163,7 +163,7 @@ circuit assertBuyerOrSeller(): [] {
 
 // Verify current block height (using sequence as proxy for block height in test environment)
 circuit currentBlockHeight(): Field {
-  return sequence.current() as Field;
+  return sequence;
 }
 
 // Check if deadline has passed
