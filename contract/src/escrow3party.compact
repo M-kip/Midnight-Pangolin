@@ -352,7 +352,7 @@ export circuit logisticsDeposit(logisticsStake: Uint<64>): [] {
   const logisticsAddr = publicKey(localLogisticsKey(), sequence as Field as Bytes<32>);
 
   logistics = PartyInfo {
-    address: logisticsAddr,
+    address: disclose(logisticsAddr),
     stake: disclose(logisticsStake),
     deposited: true,
     pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([logisticsAddr])
