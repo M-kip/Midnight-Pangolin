@@ -1,0 +1,1034 @@
+{
+  "compiler-version": "0.31.1",
+  "language-version": "0.23.0",
+  "runtime-version": "0.16.0",
+  "circuits": [
+    {
+      "name": "currentBlockHeight",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "deadlinePassed",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Uint",
+        "maxval": 18446744073709551615
+      }
+    },
+    {
+      "name": "checkDeadline",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "isPastDeadline",
+          "type": {
+            "type-name": "Boolean"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "publicKey",
+      "pure": true,
+      "proof": false,
+      "arguments": [
+        {
+          "name": "sk",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "seq",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "splitTimeoutStake",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "buyerShare",
+          "type": {
+            "type-name": "Field"
+          }
+        },
+        {
+          "name": "sellerShare",
+          "type": {
+            "type-name": "Field"
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "sellerInitialize",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "escrow3",
+          "type": {
+            "type-name": "Struct",
+            "name": "EscrowTerms",
+            "elements": [
+              {
+                "name": "goodsHash",
+                "type": {
+                  "type-name": "Bytes",
+                  "length": 32
+                }
+              },
+              {
+                "name": "paymentAmount",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "paymentAmountSplit",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "sellerStake",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "buyerStake",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "logisticsStake",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "logisticsStakeTimeOut",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "deliveryDeadline",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              },
+              {
+                "name": "logisticsFee",
+                "type": {
+                  "type-name": "Uint",
+                  "maxval": 18446744073709551615
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "pickupSecretHashInput",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        },
+        {
+          "name": "deliverySecretHashInput",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "buyerDeposit",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "logisticsDeposit",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "confirmPickup",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "pickupSecretInput",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "confirmDelivery",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "deliverySecretInput",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "triggerTimeout",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "raiseDispute",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "reason",
+          "type": {
+            "type-name": "Enum",
+            "name": "DisputeReason",
+            "elements": [
+              "NONE",
+              "GOODS_NOT_AS_DESCRIBED",
+              "LOGISTICS_THEFT",
+              "LOGISTICS_LATE",
+              "BUYER_REFUSAL"
+            ]
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "sellerRaiseDispute",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "reason",
+          "type": {
+            "type-name": "Enum",
+            "name": "DisputeReason",
+            "elements": [
+              "NONE",
+              "GOODS_NOT_AS_DESCRIBED",
+              "LOGISTICS_THEFT",
+              "LOGISTICS_LATE",
+              "BUYER_REFUSAL"
+            ]
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "resolveDispute",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+        {
+          "name": "resolution",
+          "type": {
+            "type-name": "Uint",
+            "maxval": 18446744073709551615
+          }
+        },
+        {
+          "name": "mediatorSig",
+          "type": {
+            "type-name": "Bytes",
+            "length": 32
+          }
+        }
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "getState",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Enum",
+        "name": "EscrowState",
+        "elements": [
+          "UNINITIALIZED",
+          "SELLER_DEPOSITED",
+          "BUYER_DEPOSITED",
+          "LOGISTICS_DEPOSITED",
+          "IN_TRANSIT",
+          "DELIVERED",
+          "DISPUTED",
+          "RESOLVED",
+          "EXPIRED"
+        ]
+      }
+    },
+    {
+      "name": "getTerms",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Struct",
+        "name": "EscrowTerms",
+        "elements": [
+          {
+            "name": "goodsHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "paymentAmount",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "paymentAmountSplit",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "sellerStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "buyerStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsStakeTimeOut",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "deliveryDeadline",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsFee",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "getSeller",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Struct",
+        "name": "PartyInfo",
+        "elements": [
+          {
+            "name": "address",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "stake",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "deposited",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "pubKeyHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "getBuyer",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Struct",
+        "name": "PartyInfo",
+        "elements": [
+          {
+            "name": "address",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "stake",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "deposited",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "pubKeyHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "getLogistics",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Struct",
+        "name": "PartyInfo",
+        "elements": [
+          {
+            "name": "address",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "stake",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "deposited",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "pubKeyHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "getDispute",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Struct",
+        "name": "DisputeInfo",
+        "elements": [
+          {
+            "name": "raisedBy",
+            "type": {
+              "type-name": "Enum",
+              "name": "PartyRole",
+              "elements": [
+                "SELLER",
+                "BUYER",
+                "LOGISTICS"
+              ]
+            }
+          },
+          {
+            "name": "reason",
+            "type": {
+              "type-name": "Enum",
+              "name": "DisputeReason",
+              "elements": [
+                "NONE",
+                "GOODS_NOT_AS_DESCRIBED",
+                "LOGISTICS_THEFT",
+                "LOGISTICS_LATE",
+                "BUYER_REFUSAL"
+              ]
+            }
+          },
+          {
+            "name": "raisedAt",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "resolved",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "resolution",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "isPickupConfirmed",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "isDeliveryConfirmed",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "isDeadlinePassed",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "getCurrentBlockHeight",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Field"
+      }
+    },
+    {
+      "name": "emergencyPause",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Tuple",
+        "types": [
+        ]
+      }
+    },
+    {
+      "name": "getSequence",
+      "pure": false,
+      "proof": true,
+      "arguments": [
+      ],
+      "result-type": {
+        "type-name": "Field"
+      }
+    }
+  ],
+  "witnesses": [
+    {
+      "name": "localSellerKey",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "localBuyerKey",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "localLogisticsKey",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "mediatorKey",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    }
+  ],
+  "contracts": [
+  ],
+  "ledger": [
+    {
+      "name": "state",
+      "index": 0,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Enum",
+        "name": "EscrowState",
+        "elements": [
+          "UNINITIALIZED",
+          "SELLER_DEPOSITED",
+          "BUYER_DEPOSITED",
+          "LOGISTICS_DEPOSITED",
+          "IN_TRANSIT",
+          "DELIVERED",
+          "DISPUTED",
+          "RESOLVED",
+          "EXPIRED"
+        ]
+      }
+    },
+    {
+      "name": "terms",
+      "index": 1,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Struct",
+        "name": "EscrowTerms",
+        "elements": [
+          {
+            "name": "goodsHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "paymentAmount",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "paymentAmountSplit",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "sellerStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "buyerStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsStakeTimeOut",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "deliveryDeadline",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsFee",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "seller",
+      "index": 2,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Struct",
+        "name": "PartyInfo",
+        "elements": [
+          {
+            "name": "address",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "stake",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "deposited",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "pubKeyHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "buyer",
+      "index": 3,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Struct",
+        "name": "PartyInfo",
+        "elements": [
+          {
+            "name": "address",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "stake",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "deposited",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "pubKeyHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "logistics",
+      "index": 4,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Struct",
+        "name": "PartyInfo",
+        "elements": [
+          {
+            "name": "address",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "stake",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "deposited",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "pubKeyHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "dispute",
+      "index": 5,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Struct",
+        "name": "DisputeInfo",
+        "elements": [
+          {
+            "name": "raisedBy",
+            "type": {
+              "type-name": "Enum",
+              "name": "PartyRole",
+              "elements": [
+                "SELLER",
+                "BUYER",
+                "LOGISTICS"
+              ]
+            }
+          },
+          {
+            "name": "reason",
+            "type": {
+              "type-name": "Enum",
+              "name": "DisputeReason",
+              "elements": [
+                "NONE",
+                "GOODS_NOT_AS_DESCRIBED",
+                "LOGISTICS_THEFT",
+                "LOGISTICS_LATE",
+                "BUYER_REFUSAL"
+              ]
+            }
+          },
+          {
+            "name": "raisedAt",
+            "type": {
+              "type-name": "Field"
+            }
+          },
+          {
+            "name": "resolved",
+            "type": {
+              "type-name": "Boolean"
+            }
+          },
+          {
+            "name": "resolution",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "pickupSecretHash",
+      "index": 6,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "deliverySecretHash",
+      "index": 7,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "pickupConfirmed",
+      "index": 8,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "deliveryConfirmed",
+      "index": 9,
+      "exported": true,
+      "storage": "Cell",
+      "type": {
+        "type-name": "Boolean"
+      }
+    },
+    {
+      "name": "sequence",
+      "index": 10,
+      "exported": true,
+      "storage": "Counter"
+    }
+  ]
+}
