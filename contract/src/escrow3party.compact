@@ -202,43 +202,43 @@ export circuit splitTimeoutStake(buyerShare: Field, sellerShare: Field): [] {
 }
 
 // Compute distribution amounts for successful delivery
-circuit computeDeliveryDistribution(): (Field, Field, Field) {
+circuit computeDeliveryDistribution(): [Field, Field, Field] {
   const sellerAmount = terms.paymentAmount - terms.logisticsFee + terms.sellerStake;
   const logisticsAmount = terms.logisticsFee + terms.logisticsStake;
   const buyerAmount = terms.buyerStake;
-  return (sellerAmount, logisticsAmount, buyerAmount);
+  return [sellerAmount, logisticsAmount, buyerAmount];
 }
 
 // Compute timeout distribution (logistics stake slashed, split between buyer/seller)
-circuit computeTimeoutDistribution(): (Field, Field, Field) {
+circuit computeTimeoutDistribution(): [Field, Field, Field] {
   const slashAmount = terms.logisticsStake;
   const buyerShare = slashAmount / 2;
   const sellerShare = slashAmount - buyerShare;
   const sellerAmount = terms.sellerStake + sellerShare;
   const buyerAmount = terms.buyerStake + buyerShare + terms.paymentAmount; // Buyer gets payment back
   const logisticsAmount = 0; // Logistics loses stake
-  return (sellerAmount, buyerAmount, logisticsAmount);
+  return [sellerAmount, buyerAmount, logisticsAmount];
 }
 
 // Compute dispute resolution distribution
-circuit computeDisputeDistribution(resolution: Field): (Field, Field, Field) {
+circuit computeDisputeDistribution(resolution: Field): [Field, Field, Field] {
   // Resolution: 0=seller wins, 1=buyer wins, 2=logistics wins, 3=split
   switch (resolution) {
     case 0: { // Seller wins - goods as described
-      return (terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+      return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
     }
     case 1: { // Buyer wins - goods not as described
-      return (terms.sellerStake, terms.paymentAmount + terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+      return [terms.sellerStake, terms.paymentAmount + terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
     }
     case 2: { // Logistics wins - buyer refused valid delivery
-      return (terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+      return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
     }
     case 3: { // Split - partial fault
       const halfPayment = terms.paymentAmount / 2;
-      return (halfPayment + terms.sellerStake, halfPayment + terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+      return [halfPayment + terms.sellerStake, halfPayment + terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
     }
     default: {
-      return (terms.sellerStake, terms.buyerStake, terms.logisticsStake);
+      return [terms.sellerStake, terms.buyerStake, terms.logisticsStake];
     }
   }
 }
