@@ -469,8 +469,13 @@ export circuit resolveDispute(resolution: Uint<64>, mediatorSig: Bytes<32>): [] 
   const mediatorPubKey = publicKey(mediatorKey(), sequence as Field as Bytes<32>);
   // In production: assert(verifySignature(mediatorPubKey, disputeHash, mediatorSig), "Invalid mediator sig");
 
-  dispute.resolved = true;
-  dispute.resolution = resolution;
+  dispute = DisputeInfo {
+    raisedBy: dispute.raisedBy,
+    reason: dispute.reason,
+    raisedAt: dispute.raisedAt,
+    resolved: true,             // Updated property
+    resolution: resolution
+    };
 
   state = EscrowState.RESOLVED;
 }
