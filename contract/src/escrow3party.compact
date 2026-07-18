@@ -411,7 +411,7 @@ export circuit raiseDispute(reason: DisputeReason): [] {
   assert(dispute.reason == DisputeReason.NONE, "Dispute already raised");
   assert(reason != DisputeReason.NONE, "Invalid dispute reason");
 
-  dispute = {
+  dispute = DisputeInfo {
     raisedBy: PartyRole.BUYER,
     reason: reason,
     raisedAt: currentBlockHeight(),
@@ -430,7 +430,7 @@ export circuit sellerRaiseDispute(reason: DisputeReason): [] {
   assert(dispute.reason == DisputeReason.NONE, "Dispute already raised");
   assert(reason != DisputeReason.NONE, "Invalid dispute reason");
 
-  dispute = {
+  dispute = DisputeInfo {
     raisedBy: PartyRole.SELLER,
     reason: reason,
     raisedAt: currentBlockHeight(),
