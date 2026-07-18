@@ -44,6 +44,7 @@ export struct PartyInfo {
 export struct EscrowTerms {
   goodsHash: Bytes<32>,          // Hash of goods manifest (immutable)
   paymentAmount: Field,           // Purchase price + logistics fee
+  paymentAmountSplit: Field,      // Payment amount split between buyer and seller in case of dispute
   sellerStake: Field,             // Seller collateral
   buyerStake: Field,              // Buyer security deposit
   logisticsStake: Field,          // Logistics collateral
@@ -235,7 +236,7 @@ circuit computeDisputeDistribution(resolution: Field): [Field, Field, Field] {
         return [terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
       } else {
         if (resolution == 3) { // Split - partial fault
-          const halfPayment = terms.paymentAmount / 2;
+          const halfPayment = terms.paymentAmountSplit; // Half of the payment amount to be split between buyer and seller
           return [halfPayment + terms.sellerStake, halfPayment + terms.buyerStake, terms.logisticsFee + terms.logisticsStake];
         } else { // Default fallback
           return [terms.sellerStake, terms.buyerStake, terms.logisticsStake];
@@ -261,6 +262,7 @@ export circuit sellerInitialize(
   assert(escrow3.buyerStake > 0, "Buyer stake must be positive");
   assert(escrow3.logisticsStake > 0, "Logistics stake must be positive");
   assert(escrow3.logisticsFee > 0 && escrow3.logisticsFee <= escrow3.paymentAmount, "Invalid logistics fee");
+  assert(escrow3.paymentAmountSplit > 0 && escrow3.paymentAmountSplit <= escrow3.paymentAmount, "Invalid payment amount split");
   assert(escrow3.deliveryDeadline > currentBlockHeight(), "Deadline must be in future");
 
   const sellerAddr = publicKey(localSellerKey(), sequence.current() as Field as Bytes<32>);
@@ -272,7 +274,8 @@ export circuit sellerInitialize(
     buyerStake: escrow3.buyerStake,
     logisticsStake: escrow3.logisticsStake,
     deliveryDeadline: escrow3.deliveryDeadline,
-    logisticsFee: escrow3.logisticsFee
+    logisticsFee: escrow3.logisticsFee,
+    paymentAmountSplit: escrow3.paymentAmountSplit
   };
 
   seller = {
