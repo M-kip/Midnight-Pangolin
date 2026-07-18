@@ -171,7 +171,7 @@ export circuit deadlinePassed(): Field {
   return terms.deliveryDeadline;
 }
 // Pass the pre-calculated time check as a parameter
-export circuit checkDeadline(isPastDeadline: Boolean): Boolean {
+export circuit checkDeadline(isPastDeadline: Boolean): [] {
   assert(isPastDeadline == true, "The delivery deadline has not passed yet");
 }
 
