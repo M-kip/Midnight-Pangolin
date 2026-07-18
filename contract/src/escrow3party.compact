@@ -98,13 +98,22 @@ constructor() {
 
   // Initialize empty party info
   seller = PartyInfo {
-    deposited: false
+    address: pad(32, ""),
+    stake: 0,
+    deposited: true,
+    pubKeyHash: pad(32, "")
   };
   buyer = PartyInfo {
-    deposited: false
+    address: pad(32, ""),
+    stake: 0,
+    deposited: true,
+    pubKeyHash: pad(32, "")
   };
   logistics = PartyInfo {
-    deposited: false
+    address: pad(32, ""),
+    stake: 0,
+    deposited: true,
+    pubKeyHash: pad(32, "")
   };
 
   dispute = DisputeInfo {
