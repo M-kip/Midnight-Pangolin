@@ -193,24 +193,12 @@ circuit calculateDeliverySecretHash(secret: Bytes<32>): Bytes<32> {
 
 // Verify pickup secret matches hash
 circuit verifyPickupSecret(secret: Bytes<32>): Boolean {
-  // Use Vector<2, ...> to safely hash the domain string and the secret together
-  const calculatedHash = persistentHash<Vector<2, Bytes<32>>>([
-    pad(32, "escrow:pickup:"), 
-    secret
-  ]);
-
-  return calculatedHash == pickupSecretHash;
+  return secret == pickupSecretHash;
 }
 
 // Verify delivery secret matches hash
 circuit verifyDeliverySecret(secret: Bytes<32>): Boolean {
-  // Use Vector<2, ...> to safely hash the domain string and the secret together
-  const calculatedHash = persistentHash<Vector<2, Bytes<32>>>([
-    pad(32, "escrow:delivery:"), 
-    secret
-  ]);
-
-  return calculatedHash == deliverySecretHash;
+  return secret == deliverySecretHash;
 }
 // Verify that the sum of buyer and seller shares equals the logistics stake
 export circuit splitTimeoutStake(buyerShare: Field, sellerShare: Field): [] {
@@ -363,7 +351,7 @@ export circuit confirmPickup(pickupSecretInput: Bytes<32>): [] {
   assert(!pickupConfirmed, "Pickup already confirmed");
 
   // Verify the secret matches the hash committed by seller
-  assert(verifyPickupSecret(pickupSecretInput), "Invalid pickup secret");
+  assert(verifyPickupSecret(disclose(pickupSecretInput)), "Invalid pickup secret");
 
   pickupConfirmed = true;
   state = EscrowState.IN_TRANSIT;
@@ -382,7 +370,7 @@ export circuit confirmDelivery(deliverySecretInput: Bytes<32>): [] {
   assert(deadlinePassed() < currentBlockHeight(), "Delivery deadline passed - use timeout");
 
   // Verify the delivery secret matches buyer's committed hash
-  assert(verifyDeliverySecret(deliverySecretInput), "Invalid delivery secret");
+  assert(verifyDeliverySecret(disclose(deliverySecretInput)), "Invalid delivery secret");
 
   deliveryConfirmed = true;
   state = EscrowState.DELIVERED;
