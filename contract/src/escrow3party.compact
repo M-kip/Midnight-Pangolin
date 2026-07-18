@@ -43,14 +43,14 @@ export struct PartyInfo {
 
 export struct EscrowTerms {
   goodsHash: Bytes<32>,          // Hash of goods manifest (immutable)
-  paymentAmount: Field,           // Purchase price + logistics fee
-  paymentAmountSplit: Field,      // Payment amount split between buyer and seller in case of dispute
-  sellerStake: Field,             // Seller collateral
-  buyerStake: Field,              // Buyer security deposit
-  logisticsStake: Field,          // Logistics collateral
-  logisticsStakeTimeOut: Field,          // Logistics collateral split between buyer and seller in case of timeout
-  deliveryDeadline: Field,        // Block height deadline
-  logisticsFee: Field             // Fee to logistics provider
+  paymentAmount: Uint<64>,           // Purchase price + logistics fee
+  paymentAmountSplit: Uint<64>,      // Payment amount split between buyer and seller in case of dispute
+  sellerStake: Uint<64>,             // Seller collateral
+  buyerStake: Uint<64>,              // Buyer security deposit
+  logisticsStake: Uint<64>,          // Logistics collateral
+  logisticsStakeTimeOut: Uint<64>,   // Logistics collateral split between buyer and seller in case of timeout
+  deliveryDeadline: Uint<64>,        // Block height deadline
+  logisticsFee: Uint<64>             // Fee to logistics provider
 }
 
 export struct DisputeInfo {
@@ -162,12 +162,12 @@ circuit assertBuyerOrSeller(): [] {
 }
 
 // Verify current block height (using sequence as proxy for block height in test environment)
-export circuit currentBlockHeight(): Field {
-  return sequence as Field;
+export circuit currentBlockHeight(): Uint<64> {
+  return sequence as Field as Uint<64>;
 }
 
 // Check if deadline has passed
-export circuit deadlinePassed(): Field {
+export circuit deadlinePassed(): Uint<64> {
   return terms.deliveryDeadline;
 }
 // Pass the pre-calculated time check as a parameter
