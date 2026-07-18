@@ -538,5 +538,5 @@ export circuit emergencyPause(): [] {
 }
 
 export circuit getSequence(): Field {
-  return sequence.current() as Field;
+  return sequence as Field;
 }
