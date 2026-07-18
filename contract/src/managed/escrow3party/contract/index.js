@@ -170,6 +170,12 @@ export class Contract {
     if (typeof(witnesses_0.localLogisticsKey) !== 'function') {
       throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named localLogisticsKey');
     }
+    if (typeof(witnesses_0.pickupSecret) !== 'function') {
+      throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named pickupSecret');
+    }
+    if (typeof(witnesses_0.deliverySecret) !== 'function') {
+      throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named deliverySecret');
+    }
     if (typeof(witnesses_0.escrow3PartyTerms) !== 'function') {
       throw new __compactRuntime.CompactError('first (witnesses) argument to Contract constructor does not contain a function-valued field named escrow3PartyTerms');
     }
@@ -186,7 +192,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('currentBlockHeight',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 167 char 1',
+                                     'escrow3party.compact line 165 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -209,7 +215,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('deadlinePassed',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 172 char 1',
+                                     'escrow3party.compact line 170 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -240,21 +246,21 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('splitTimeoutStake',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 205 char 1',
+                                     'escrow3party.compact line 203 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(buyerShare_0) === 'bigint' && buyerShare_0 >= 0 && buyerShare_0 <= __compactRuntime.MAX_FIELD)) {
           __compactRuntime.typeError('splitTimeoutStake',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 205 char 1',
+                                     'escrow3party.compact line 203 char 1',
                                      'Field',
                                      buyerShare_0)
         }
         if (!(typeof(sellerShare_0) === 'bigint' && sellerShare_0 >= 0 && sellerShare_0 <= __compactRuntime.MAX_FIELD)) {
           __compactRuntime.typeError('splitTimeoutStake',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'escrow3party.compact line 205 char 1',
+                                     'escrow3party.compact line 203 char 1',
                                      'Field',
                                      sellerShare_0)
         }
@@ -286,28 +292,28 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('sellerInitialize',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 259 char 1',
+                                     'escrow3party.compact line 257 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(escrow3_0) === 'object' && escrow3_0.goodsHash.buffer instanceof ArrayBuffer && escrow3_0.goodsHash.BYTES_PER_ELEMENT === 1 && escrow3_0.goodsHash.length === 32 && typeof(escrow3_0.paymentAmount) === 'bigint' && escrow3_0.paymentAmount >= 0n && escrow3_0.paymentAmount <= 18446744073709551615n && typeof(escrow3_0.paymentAmountSplit) === 'bigint' && escrow3_0.paymentAmountSplit >= 0n && escrow3_0.paymentAmountSplit <= 18446744073709551615n && typeof(escrow3_0.sellerStake) === 'bigint' && escrow3_0.sellerStake >= 0n && escrow3_0.sellerStake <= 18446744073709551615n && typeof(escrow3_0.buyerStake) === 'bigint' && escrow3_0.buyerStake >= 0n && escrow3_0.buyerStake <= 18446744073709551615n && typeof(escrow3_0.logisticsStake) === 'bigint' && escrow3_0.logisticsStake >= 0n && escrow3_0.logisticsStake <= 18446744073709551615n && typeof(escrow3_0.logisticsStakeTimeOut) === 'bigint' && escrow3_0.logisticsStakeTimeOut >= 0n && escrow3_0.logisticsStakeTimeOut <= 18446744073709551615n && typeof(escrow3_0.deliveryDeadline) === 'bigint' && escrow3_0.deliveryDeadline >= 0n && escrow3_0.deliveryDeadline <= 18446744073709551615n && typeof(escrow3_0.logisticsFee) === 'bigint' && escrow3_0.logisticsFee >= 0n && escrow3_0.logisticsFee <= 18446744073709551615n)) {
           __compactRuntime.typeError('sellerInitialize',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 259 char 1',
+                                     'escrow3party.compact line 257 char 1',
                                      'struct EscrowTerms<goodsHash: Bytes<32>, paymentAmount: Uint<0..18446744073709551616>, paymentAmountSplit: Uint<0..18446744073709551616>, sellerStake: Uint<0..18446744073709551616>, buyerStake: Uint<0..18446744073709551616>, logisticsStake: Uint<0..18446744073709551616>, logisticsStakeTimeOut: Uint<0..18446744073709551616>, deliveryDeadline: Uint<0..18446744073709551616>, logisticsFee: Uint<0..18446744073709551616>>',
                                      escrow3_0)
         }
         if (!(pickupSecretHashInput_0.buffer instanceof ArrayBuffer && pickupSecretHashInput_0.BYTES_PER_ELEMENT === 1 && pickupSecretHashInput_0.length === 32)) {
           __compactRuntime.typeError('sellerInitialize',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'escrow3party.compact line 259 char 1',
+                                     'escrow3party.compact line 257 char 1',
                                      'Bytes<32>',
                                      pickupSecretHashInput_0)
         }
         if (!(deliverySecretHashInput_0.buffer instanceof ArrayBuffer && deliverySecretHashInput_0.BYTES_PER_ELEMENT === 1 && deliverySecretHashInput_0.length === 32)) {
           __compactRuntime.typeError('sellerInitialize',
                                      'argument 3 (argument 4 as invoked from Typescript)',
-                                     'escrow3party.compact line 259 char 1',
+                                     'escrow3party.compact line 257 char 1',
                                      'Bytes<32>',
                                      deliverySecretHashInput_0)
         }
@@ -337,7 +343,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('buyerDeposit',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 298 char 1',
+                                     'escrow3party.compact line 296 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -360,7 +366,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('logisticsDeposit',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 317 char 1',
+                                     'escrow3party.compact line 315 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -384,14 +390,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('confirmPickup',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 339 char 1',
+                                     'escrow3party.compact line 337 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(pickupSecretInput_0.buffer instanceof ArrayBuffer && pickupSecretInput_0.BYTES_PER_ELEMENT === 1 && pickupSecretInput_0.length === 32)) {
           __compactRuntime.typeError('confirmPickup',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 339 char 1',
+                                     'escrow3party.compact line 337 char 1',
                                      'Bytes<32>',
                                      pickupSecretInput_0)
         }
@@ -420,14 +426,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('confirmDelivery',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 357 char 1',
+                                     'escrow3party.compact line 355 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(deliverySecretInput_0.buffer instanceof ArrayBuffer && deliverySecretInput_0.BYTES_PER_ELEMENT === 1 && deliverySecretInput_0.length === 32)) {
           __compactRuntime.typeError('confirmDelivery',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 357 char 1',
+                                     'escrow3party.compact line 355 char 1',
                                      'Bytes<32>',
                                      deliverySecretInput_0)
         }
@@ -455,7 +461,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('triggerTimeout',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 381 char 1',
+                                     'escrow3party.compact line 379 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -479,14 +485,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('raiseDispute',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 393 char 1',
+                                     'escrow3party.compact line 391 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(reason_0) === 'number' && reason_0 >= 0 && reason_0 <= 4)) {
           __compactRuntime.typeError('raiseDispute',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 393 char 1',
+                                     'escrow3party.compact line 391 char 1',
                                      'Enum<DisputeReason, NONE, GOODS_NOT_AS_DESCRIBED, LOGISTICS_THEFT, LOGISTICS_LATE, BUYER_REFUSAL>',
                                      reason_0)
         }
@@ -515,14 +521,14 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('sellerRaiseDispute',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 412 char 1',
+                                     'escrow3party.compact line 410 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(reason_0) === 'number' && reason_0 >= 0 && reason_0 <= 4)) {
           __compactRuntime.typeError('sellerRaiseDispute',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 412 char 1',
+                                     'escrow3party.compact line 410 char 1',
                                      'Enum<DisputeReason, NONE, GOODS_NOT_AS_DESCRIBED, LOGISTICS_THEFT, LOGISTICS_LATE, BUYER_REFUSAL>',
                                      reason_0)
         }
@@ -552,21 +558,21 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('resolveDispute',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 433 char 1',
+                                     'escrow3party.compact line 431 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
         if (!(typeof(resolution_0) === 'bigint' && resolution_0 >= 0n && resolution_0 <= 18446744073709551615n)) {
           __compactRuntime.typeError('resolveDispute',
                                      'argument 1 (argument 2 as invoked from Typescript)',
-                                     'escrow3party.compact line 433 char 1',
+                                     'escrow3party.compact line 431 char 1',
                                      'Uint<0..18446744073709551616>',
                                      resolution_0)
         }
         if (!(mediatorSig_0.buffer instanceof ArrayBuffer && mediatorSig_0.BYTES_PER_ELEMENT === 1 && mediatorSig_0.length === 32)) {
           __compactRuntime.typeError('resolveDispute',
                                      'argument 2 (argument 3 as invoked from Typescript)',
-                                     'escrow3party.compact line 433 char 1',
+                                     'escrow3party.compact line 431 char 1',
                                      'Bytes<32>',
                                      mediatorSig_0)
         }
@@ -595,7 +601,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getState',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 457 char 1',
+                                     'escrow3party.compact line 455 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -618,7 +624,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getTerms',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 461 char 1',
+                                     'escrow3party.compact line 459 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -641,7 +647,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getSeller',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 465 char 1',
+                                     'escrow3party.compact line 463 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -664,7 +670,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getBuyer',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 469 char 1',
+                                     'escrow3party.compact line 467 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -687,7 +693,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getLogistics',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 473 char 1',
+                                     'escrow3party.compact line 471 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -710,7 +716,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getDispute',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 477 char 1',
+                                     'escrow3party.compact line 475 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -733,7 +739,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('isPickupConfirmed',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 481 char 1',
+                                     'escrow3party.compact line 479 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -756,7 +762,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('isDeliveryConfirmed',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 485 char 1',
+                                     'escrow3party.compact line 483 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -779,7 +785,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('isDeadlinePassed',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 489 char 1',
+                                     'escrow3party.compact line 487 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -802,7 +808,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getCurrentBlockHeight',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 493 char 1',
+                                     'escrow3party.compact line 491 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -825,7 +831,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('emergencyPause',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 502 char 1',
+                                     'escrow3party.compact line 500 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -848,7 +854,7 @@ export class Contract {
         if (!(typeof(contextOrig_0) === 'object' && contextOrig_0.currentQueryContext != undefined)) {
           __compactRuntime.typeError('getSequence',
                                      'argument 1 (as invoked from Typescript)',
-                                     'escrow3party.compact line 510 char 1',
+                                     'escrow3party.compact line 508 char 1',
                                      'CircuitContext',
                                      contextOrig_0)
         }
@@ -1264,6 +1270,40 @@ export class Contract {
     });
     return result_0;
   }
+  _pickupSecret_0(context, partialProofData) {
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
+    const [nextPrivateState_0, result_0] = this.witnesses.pickupSecret(witnessContext_0);
+    context.currentPrivateState = nextPrivateState_0;
+    if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
+      __compactRuntime.typeError('pickupSecret',
+                                 'return value',
+                                 'escrow3party.compact line 88 char 1',
+                                 'Bytes<32>',
+                                 result_0)
+    }
+    partialProofData.privateTranscriptOutputs.push({
+      value: _descriptor_2.toValue(result_0),
+      alignment: _descriptor_2.alignment()
+    });
+    return result_0;
+  }
+  _deliverySecret_0(context, partialProofData) {
+    const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
+    const [nextPrivateState_0, result_0] = this.witnesses.deliverySecret(witnessContext_0);
+    context.currentPrivateState = nextPrivateState_0;
+    if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
+      __compactRuntime.typeError('deliverySecret',
+                                 'return value',
+                                 'escrow3party.compact line 89 char 1',
+                                 'Bytes<32>',
+                                 result_0)
+    }
+    partialProofData.privateTranscriptOutputs.push({
+      value: _descriptor_2.toValue(result_0),
+      alignment: _descriptor_2.alignment()
+    });
+    return result_0;
+  }
   _escrow3PartyTerms_0(context, partialProofData) {
     const witnessContext_0 = __compactRuntime.createWitnessContext(ledger(context.currentQueryContext.state), context.currentPrivateState, context.currentQueryContext.address);
     const [nextPrivateState_0, result_0] = this.witnesses.escrow3PartyTerms(witnessContext_0);
@@ -1271,7 +1311,7 @@ export class Contract {
     if (!(typeof(result_0) === 'object' && result_0.goodsHash.buffer instanceof ArrayBuffer && result_0.goodsHash.BYTES_PER_ELEMENT === 1 && result_0.goodsHash.length === 32 && typeof(result_0.paymentAmount) === 'bigint' && result_0.paymentAmount >= 0n && result_0.paymentAmount <= 18446744073709551615n && typeof(result_0.paymentAmountSplit) === 'bigint' && result_0.paymentAmountSplit >= 0n && result_0.paymentAmountSplit <= 18446744073709551615n && typeof(result_0.sellerStake) === 'bigint' && result_0.sellerStake >= 0n && result_0.sellerStake <= 18446744073709551615n && typeof(result_0.buyerStake) === 'bigint' && result_0.buyerStake >= 0n && result_0.buyerStake <= 18446744073709551615n && typeof(result_0.logisticsStake) === 'bigint' && result_0.logisticsStake >= 0n && result_0.logisticsStake <= 18446744073709551615n && typeof(result_0.logisticsStakeTimeOut) === 'bigint' && result_0.logisticsStakeTimeOut >= 0n && result_0.logisticsStakeTimeOut <= 18446744073709551615n && typeof(result_0.deliveryDeadline) === 'bigint' && result_0.deliveryDeadline >= 0n && result_0.deliveryDeadline <= 18446744073709551615n && typeof(result_0.logisticsFee) === 'bigint' && result_0.logisticsFee >= 0n && result_0.logisticsFee <= 18446744073709551615n)) {
       __compactRuntime.typeError('escrow3PartyTerms',
                                  'return value',
-                                 'escrow3party.compact line 92 char 1',
+                                 'escrow3party.compact line 90 char 1',
                                  'struct EscrowTerms<goodsHash: Bytes<32>, paymentAmount: Uint<0..18446744073709551616>, paymentAmountSplit: Uint<0..18446744073709551616>, sellerStake: Uint<0..18446744073709551616>, buyerStake: Uint<0..18446744073709551616>, logisticsStake: Uint<0..18446744073709551616>, logisticsStakeTimeOut: Uint<0..18446744073709551616>, deliveryDeadline: Uint<0..18446744073709551616>, logisticsFee: Uint<0..18446744073709551616>>',
                                  result_0)
     }
@@ -1324,7 +1364,7 @@ export class Contract {
                                                                                                                                                                                        alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                                             { popeq: { cached: true,
                                                                                                                                                                        result: undefined } }]).value),
-                                                                                                 'escrow3party.compact line 140 char 56'))),
+                                                                                                 'escrow3party.compact line 138 char 56'))),
                             'Not seller');
     __compactRuntime.assert(_descriptor_4.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                       partialProofData,
@@ -1384,7 +1424,7 @@ export class Contract {
                                                                                                                                                                                        alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                                             { popeq: { cached: true,
                                                                                                                                                                        result: undefined } }]).value),
-                                                                                                 'escrow3party.compact line 147 char 54'))),
+                                                                                                 'escrow3party.compact line 145 char 54'))),
                             'Not buyer');
     __compactRuntime.assert(_descriptor_4.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                       partialProofData,
@@ -1444,7 +1484,7 @@ export class Contract {
                                                                                                                                                                                        alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                                             { popeq: { cached: true,
                                                                                                                                                                        result: undefined } }]).value),
-                                                                                                 'escrow3party.compact line 154 char 62'))),
+                                                                                                 'escrow3party.compact line 152 char 62'))),
                             'Not logistics');
     __compactRuntime.assert(_descriptor_4.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                       partialProofData,
@@ -1492,7 +1532,7 @@ export class Contract {
                                                                                                                                                                   alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                        { popeq: { cached: true,
                                                                                                                                                   result: undefined } }]).value),
-                                                                            'escrow3party.compact line 161 char 46'));
+                                                                            'escrow3party.compact line 159 char 46'));
     __compactRuntime.assert(this._equal_3(caller_0,
                                           _descriptor_4.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                                     partialProofData,
@@ -1580,7 +1620,7 @@ export class Contract {
   _currentBlockHeight_0(context, partialProofData) {
     return ((t1) => {
              if (t1 > 18446744073709551615n) {
-               throw new __compactRuntime.CompactError('escrow3party.compact line 168 char 10: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
+               throw new __compactRuntime.CompactError('escrow3party.compact line 166 char 10: cast from Field or Uint value to smaller Uint value failed: ' + t1 + ' is greater than 18446744073709551615');
              }
              return t1;
            })(_descriptor_0.fromValue(__compactRuntime.queryLedgerState(context,
@@ -1736,7 +1776,7 @@ export class Contract {
                                                                                                                                                                       alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                            { popeq: { cached: true,
                                                                                                                                                       result: undefined } }]).value),
-                                                                                'escrow3party.compact line 273 char 50'));
+                                                                                'escrow3party.compact line 271 char 50'));
     const tmp_0 = this._escrow3PartyTerms_0(context, partialProofData);
     __compactRuntime.queryLedgerState(context,
                                       partialProofData,
@@ -1762,6 +1802,7 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_4.toValue(tmp_1),
                                                                                               alignment: _descriptor_4.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
+    const tmp_2 = this._pickupSecret_0(context, partialProofData);
     __compactRuntime.queryLedgerState(context,
                                       partialProofData,
                                       [
@@ -1769,9 +1810,10 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_16.toValue(6n),
                                                                                               alignment: _descriptor_16.alignment() }).encode() } },
                                        { push: { storage: true,
-                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(pickupSecretHashInput_0),
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(tmp_2),
                                                                                               alignment: _descriptor_2.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
+    const tmp_3 = this._deliverySecret_0(context, partialProofData);
     __compactRuntime.queryLedgerState(context,
                                       partialProofData,
                                       [
@@ -1779,7 +1821,7 @@ export class Contract {
                                                  value: __compactRuntime.StateValue.newCell({ value: _descriptor_16.toValue(7n),
                                                                                               alignment: _descriptor_16.alignment() }).encode() } },
                                        { push: { storage: true,
-                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(deliverySecretHashInput_0),
+                                                 value: __compactRuntime.StateValue.newCell({ value: _descriptor_2.toValue(tmp_3),
                                                                                               alignment: _descriptor_2.alignment() }).encode() } },
                                        { ins: { cached: false, n: 1 } }]);
     __compactRuntime.queryLedgerState(context,
@@ -1845,7 +1887,7 @@ export class Contract {
                                                                                                                                                                      alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                           { popeq: { cached: true,
                                                                                                                                                      result: undefined } }]).value),
-                                                                               'escrow3party.compact line 300 char 48'));
+                                                                               'escrow3party.compact line 298 char 48'));
     const tmp_0 = { address: buyerAddr_0,
                     stake:
                       _descriptor_8.fromValue(__compactRuntime.queryLedgerState(context,
@@ -1915,7 +1957,7 @@ export class Contract {
                                                                                                                                                                          alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                               { popeq: { cached: true,
                                                                                                                                                          result: undefined } }]).value),
-                                                                                   'escrow3party.compact line 320 char 56'));
+                                                                                   'escrow3party.compact line 318 char 56'));
     const tmp_0 = { address: logisticsAddr_0,
                     stake:
                       _descriptor_8.fromValue(__compactRuntime.queryLedgerState(context,
@@ -2288,7 +2330,7 @@ export class Contract {
     if (!(result_0.buffer instanceof ArrayBuffer && result_0.BYTES_PER_ELEMENT === 1 && result_0.length === 32)) {
       __compactRuntime.typeError('mediatorKey',
                                  'return value',
-                                 'escrow3party.compact line 431 char 1',
+                                 'escrow3party.compact line 429 char 1',
                                  'Bytes<32>',
                                  result_0)
     }
@@ -2343,7 +2385,7 @@ export class Contract {
                                                                                                                                                                           alignment: _descriptor_16.alignment() } }] } },
                                                                                                                                                { popeq: { cached: true,
                                                                                                                                                           result: undefined } }]).value),
-                                                                                    'escrow3party.compact line 439 char 51'));
+                                                                                    'escrow3party.compact line 437 char 51'));
     const tmp_0 = { raisedBy:
                       _descriptor_7.fromValue(__compactRuntime.queryLedgerState(context,
                                                                                 partialProofData,
@@ -2796,6 +2838,8 @@ const _dummyContract = new Contract({
   localSellerKey: (...args) => undefined,
   localBuyerKey: (...args) => undefined,
   localLogisticsKey: (...args) => undefined,
+  pickupSecret: (...args) => undefined,
+  deliverySecret: (...args) => undefined,
   escrow3PartyTerms: (...args) => undefined,
   mediatorKey: (...args) => undefined
 });
@@ -2808,7 +2852,7 @@ export const pureCircuits = {
     if (!(typeof(isPastDeadline_0) === 'boolean')) {
       __compactRuntime.typeError('checkDeadline',
                                  'argument 1',
-                                 'escrow3party.compact line 176 char 1',
+                                 'escrow3party.compact line 174 char 1',
                                  'Boolean',
                                  isPastDeadline_0)
     }
@@ -2823,14 +2867,14 @@ export const pureCircuits = {
     if (!(sk_0.buffer instanceof ArrayBuffer && sk_0.BYTES_PER_ELEMENT === 1 && sk_0.length === 32)) {
       __compactRuntime.typeError('publicKey',
                                  'argument 1',
-                                 'escrow3party.compact line 181 char 1',
+                                 'escrow3party.compact line 179 char 1',
                                  'Bytes<32>',
                                  sk_0)
     }
     if (!(seq_0.buffer instanceof ArrayBuffer && seq_0.BYTES_PER_ELEMENT === 1 && seq_0.length === 32)) {
       __compactRuntime.typeError('publicKey',
                                  'argument 2',
-                                 'escrow3party.compact line 181 char 1',
+                                 'escrow3party.compact line 179 char 1',
                                  'Bytes<32>',
                                  seq_0)
     }

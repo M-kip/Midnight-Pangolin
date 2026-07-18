@@ -707,6 +707,24 @@
       }
     },
     {
+      "name": "pickupSecret",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
+      "name": "deliverySecret",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Bytes",
+        "length": 32
+      }
+    },
+    {
       "name": "escrow3PartyTerms",
       "arguments": [
       ],
