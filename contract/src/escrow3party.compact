@@ -393,7 +393,7 @@ export circuit confirmDelivery(deliverySecretInput: Bytes<32>): [] {
 // ============================================================================
 
 // Buyer or seller triggers timeout after deadline passes without delivery
-export circuit triggerTimeout() {
+export circuit triggerTimeout(): [] {
   assert(state == EscrowState.IN_TRANSIT, "Goods must be in transit");
   assertBuyerOrSeller();
   assert(deadlinePassed(), "Delivery deadline not yet passed");
