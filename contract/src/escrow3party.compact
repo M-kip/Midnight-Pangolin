@@ -267,7 +267,7 @@ export circuit sellerInitialize(
 
   const sellerAddr = publicKey(localSellerKey(), sequence.current() as Field as Bytes<32>);
 
-  terms = {
+  terms = EscrowTerms {
     goodsHash: escrow3.goodsHash,
     paymentAmount: escrow3.paymentAmount,
     sellerStake: escrow3.sellerStake,
@@ -278,7 +278,7 @@ export circuit sellerInitialize(
     paymentAmountSplit: escrow3.paymentAmountSplit
   };
 
-  seller = {
+  seller = PartyInfo {
     address: sellerAddr,
     stake: escrow3.sellerStake,
     deposited: true,
@@ -309,7 +309,7 @@ export circuit buyerDeposit(
 
   const buyerAddr = publicKey(localBuyerKey(), sequence.current() as Field as Bytes<32>);
 
-  buyer = {
+  buyer = PartyInfo {
     address: buyerAddr,
     stake: buyerStake,
     deposited: true,
@@ -333,7 +333,7 @@ export circuit logisticsDeposit(logisticsStake: Field) {
 
   const logisticsAddr = publicKey(localLogisticsKey(), sequence.current() as Field as Bytes<32>);
 
-  logistics = {
+  logistics = PartyInfo {
     address: logisticsAddr,
     stake: logisticsStake,
     deposited: true,
@@ -351,7 +351,7 @@ export circuit logisticsDeposit(logisticsStake: Field) {
 
 // Logistics proves they have the pickup secret (received from seller off-chain)
 // This advances state to IN_TRANSIT
-export circuit confirmPickup(pickupSecretInput: Bytes<32>) {
+export circuit confirmPickup(pickupSecretInput: Bytes<32>): [] {
   assert(state == EscrowState.LOGISTICS_DEPOSITED, "All parties must deposit first");
   assertLogistics();
   assert(!pickupConfirmed, "Pickup already confirmed");
@@ -369,7 +369,7 @@ export circuit confirmPickup(pickupSecretInput: Bytes<32>) {
 
 // Buyer confirms delivery by proving knowledge of delivery secret
 // This triggers automatic fund release
-export circuit confirmDelivery(deliverySecretInput: Bytes<32>) {
+export circuit confirmDelivery(deliverySecretInput: Bytes<32>): [] {
   assert(state == EscrowState.IN_TRANSIT, "Goods must be in transit");
   assertBuyer();
   assert(!deliveryConfirmed, "Delivery already confirmed");
@@ -405,7 +405,7 @@ export circuit triggerTimeout() {
 }
 
 // Buyer raises dispute (goods not as described)
-export circuit raiseDispute(reason: DisputeReason) {
+export circuit raiseDispute(reason: DisputeReason): [] {
   assert(state == EscrowState.IN_TRANSIT || state == EscrowState.DELIVERED, "Invalid state for dispute");
   assertBuyer();
   assert(dispute.reason == DisputeReason.NONE, "Dispute already raised");
@@ -424,7 +424,7 @@ export circuit raiseDispute(reason: DisputeReason) {
 }
 
 // Seller raises dispute (buyer refusing valid delivery)
-export circuit sellerRaiseDispute(reason: DisputeReason) {
+export circuit sellerRaiseDispute(reason: DisputeReason): [] {
   assert(state == EscrowState.DELIVERED, "Invalid state for seller dispute");
   assertSeller();
   assert(dispute.reason == DisputeReason.NONE, "Dispute already raised");
@@ -445,7 +445,7 @@ export circuit sellerRaiseDispute(reason: DisputeReason) {
 // For now, we simulate with a circuit that requires mediator key
 witness mediatorKey(): Bytes<32>;
 
-export circuit resolveDispute(resolution: Field, mediatorSig: Bytes<32>) {
+export circuit resolveDispute(resolution: Field, mediatorSig: Bytes<32>): [] {
   assert(state == EscrowState.DISPUTED, "No active dispute");
   assert(!dispute.resolved, "Dispute already resolved");
   assert(resolution <= 3, "Invalid resolution");
@@ -509,7 +509,7 @@ export circuit getCurrentBlockHeight(): Field {
 // ============================================================================
 
 // Emergency pause (would require admin key in production)
-export circuit emergencyPause() {
+export circuit emergencyPause(): [] {
   // In production: assert(adminKey == caller);
   // For now, any deposited party can pause in emergency
   assert(seller.deposited || buyer.deposited || logistics.deposited, "No parties deposited");
