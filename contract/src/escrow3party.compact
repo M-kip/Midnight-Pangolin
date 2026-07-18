@@ -281,16 +281,17 @@ export circuit sellerInitialize(
 
   const sellerAddr = publicKey(localSellerKey(), sequence as Field as Bytes<32>);
 
-  terms = EscrowTerms {
-    goodsHash: escrow3.goodsHash,
-    paymentAmount: escrow3.paymentAmount,
-    sellerStake: escrow3.sellerStake,
-    buyerStake: escrow3.buyerStake,
-    logisticsStake: escrow3.logisticsStake,
-    deliveryDeadline: escrow3.deliveryDeadline,
-    logisticsFee: escrow3.logisticsFee,
-    paymentAmountSplit: escrow3.paymentAmountSplit
-  };
+  terms =EscrowTerms {
+  goodsHash: escrow3.goodsHash,         // Hash of goods manifest (immutable)
+  paymentAmount: escrow3.paymentAmount,           // Purchase price + logistics fee
+  paymentAmountSplit: escrow3.paymentAmountSplit,      // Payment amount split between buyer and seller in case of dispute
+  sellerStake: escrow3.sellerStake,             // Seller collateral
+  buyerStake: escrow3.buyerStake,              // Buyer security deposit
+  logisticsStake: escrow3.logisticsStake,          // Logistics collateral
+  logisticsStakeTimeOut: escrow3.logisticsStakeTimeOut,   // Logistics collateral split between buyer and seller in case of timeout
+  deliveryDeadline: escrow3.deliveryDeadline,        // Block height deadline
+  logisticsFee: escrow3.logisticsFee             // Fee to logistics provider
+}
 
   seller = PartyInfo {
     address: sellerAddr,
