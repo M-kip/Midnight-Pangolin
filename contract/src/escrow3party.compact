@@ -118,6 +118,7 @@ constructor() {
 
   dispute = DisputeInfo {
     raisedBy: PartyRole.SELLER,
+    raisedAt: 0,
     reason: DisputeReason.NONE,
     resolved: true,
     resolution: 0
