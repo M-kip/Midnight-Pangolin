@@ -291,7 +291,7 @@ export circuit sellerInitialize(
   logisticsStakeTimeOut: escrow3.logisticsStakeTimeOut,   // Logistics collateral split between buyer and seller in case of timeout
   deliveryDeadline: escrow3.deliveryDeadline,        // Block height deadline
   logisticsFee: escrow3.logisticsFee             // Fee to logistics provider
-}
+  };
 
   seller = PartyInfo {
     address: sellerAddr,
