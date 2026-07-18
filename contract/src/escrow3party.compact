@@ -89,8 +89,6 @@ witness pickupSecret(): Bytes<32>;              // Raw pickup secret from seller
 witness deliverySecret(): Bytes<32>;
 witness disputeReason(): DisputeReason;
 witness disputeResolution(): Uint<64>;       // Witnessed dispute resolution
-witness logisticStakeVal(): Uint<64>;
-
 // ============================================================================
 // CONSTRUCTOR
 // ============================================================================
@@ -317,8 +315,6 @@ export circuit sellerInitialize(
 
 // Buyer deposits payment amount + buyer stake
 export circuit buyerDeposit(
-  paymentAmount: Uint<64>,
-  buyerStake: Uint<64>,
   deliverySecretHashInput: Bytes<32>
 ): [] {
   assert(state == EscrowState.SELLER_DEPOSITED, "Seller must deposit first");
