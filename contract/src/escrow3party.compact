@@ -327,7 +327,7 @@ export circuit buyerDeposit(
 // ============================================================================
 
 // Logistics provider deposits their stake
-export circuit logisticsDeposit(logisticsStake: Field) {
+export circuit logisticsDeposit(logisticsStake: Field): [] {
   assert(state == EscrowState.BUYER_DEPOSITED, "Buyer must deposit first");
   assert(logisticsStake == terms.logisticsStake, "Logistics stake mismatch");
 
