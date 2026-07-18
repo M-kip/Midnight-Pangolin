@@ -296,7 +296,7 @@ export circuit sellerInitialize(
   };
 
   seller = PartyInfo {
-    address: sellerAddr,
+    address: disclose(sellerAddr),
     stake: disclose(escrow3.sellerStake),
     deposited: true,
     pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([disclose(sellerAddr)])
