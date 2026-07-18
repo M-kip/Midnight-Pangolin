@@ -158,8 +158,8 @@ circuit assertLogistics(): [] {
 circuit assertBuyerOrSeller(): [] {
   assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
   const caller = publicKey(localSellerKey(), sequence as Field as Bytes<32>);
-  assert(caller == seller.address || caller == buyer.address, "Not buyer or seller");
-  assert((caller == seller.address && seller.deposited) || (caller == buyer.address && buyer.deposited), "Party not deposited");
+  assert(disclose(caller) == seller.address || disclose(caller) == buyer.address, "Not buyer or seller");
+  assert((disclose(caller) == seller.address && seller.deposited) || (disclose(caller) == buyer.address && buyer.deposited), "Party not deposited");
 }
 
 // Verify current block height (using sequence as proxy for block height in test environment)
