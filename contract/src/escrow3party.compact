@@ -388,7 +388,7 @@ export circuit confirmDelivery(deliverySecretInput: Bytes<32>): [] {
   assert(state == EscrowState.IN_TRANSIT, "Goods must be in transit");
   assertBuyer();
   assert(!deliveryConfirmed, "Delivery already confirmed");
-  assert(!deadlinePassed(), "Delivery deadline passed - use timeout");
+  assert(!deadlinePassed() < currentBlockHeight(), "Delivery deadline passed - use timeout");
 
   // Verify the delivery secret matches buyer's committed hash
   assert(verifyDeliverySecret(deliverySecretInput), "Invalid delivery secret");
