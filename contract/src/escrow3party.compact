@@ -170,6 +170,10 @@ export circuit currentBlockHeight(): Field {
 export circuit deadlinePassed(): Field {
   return terms.deliveryDeadline;
 }
+// Pass the pre-calculated time check as a parameter
+export circuit checkDeadline(isPastDeadline: Boolean): Boolean {
+  assert(isPastDeadline == true, "The delivery deadline has not passed yet");
+}
 
 // Derive public key from secret key and sequence
 export circuit publicKey(sk: Bytes<32>, seq: Bytes<32>): Bytes<32> {
