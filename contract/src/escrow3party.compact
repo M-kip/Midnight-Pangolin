@@ -517,7 +517,7 @@ export circuit isDeliveryConfirmed(): Boolean {
 }
 
 export circuit isDeadlinePassed(): Boolean {
-  return deadlinePassed();
+  return deadlinePassed() > currentBlockHeight();
 }
 
 export circuit getCurrentBlockHeight(): Field {
