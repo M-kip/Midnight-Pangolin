@@ -196,7 +196,7 @@ circuit verifyDeliverySecret(secret: Bytes<32>): boolean {
   return calculatedHash == deliverySecretHash;
 }
 // Verify that the sum of buyer and seller shares equals the logistics stake
-export circuit splitTimeoutStake(buyerShare: Field, sellerShare: Field) {
+export circuit splitTimeoutStake(buyerShare: Field, sellerShare: Field): [] {
   // Prove that the two shares perfectly equal the whole stake pool
   assert(buyerShare + sellerShare == terms.logisticsStake, "Invalid split calculation");
 }
@@ -296,7 +296,7 @@ export circuit buyerDeposit(
   paymentAmount: Field,
   buyerStake: Field,
   deliverySecretHashInput: Bytes<32>
-) {
+): [] {
   assert(state == EscrowState.SELLER_DEPOSITED, "Seller must deposit first");
   assert(paymentAmount == terms.paymentAmount, "Payment amount mismatch");
   assert(buyerStake == terms.buyerStake, "Buyer stake mismatch");
