@@ -87,8 +87,6 @@ witness localBuyerKey(): Bytes<32>;
 witness localLogisticsKey(): Bytes<32>;
 witness pickupSecret(): Bytes<32>;              // Raw pickup secret from seller
 witness deliverySecret(): Bytes<32>;
-witness disputeReason(): DisputeReason;
-witness disputeResolution(): Uint<64>;
 witness escrow3PartyTerms(): EscrowTerms;       // Witnessed dispute resolution
 // ============================================================================
 // CONSTRUCTOR
@@ -281,8 +279,8 @@ export circuit sellerInitialize(
     pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([disclose(sellerAddr)])
   };
 
-  pickupSecretHash = disclose(pickupSecretHashInput);
-  deliverySecretHash = disclose(deliverySecretHashInput);
+  pickupSecretHash = disclose(pickupSecret());
+  deliverySecretHash = disclose(deliverySecret());
   pickupConfirmed = false;
   deliveryConfirmed = false;
 
