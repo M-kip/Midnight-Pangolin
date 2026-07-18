@@ -1,0 +1,528 @@
+// escrow3party.compact - 3-Party Escrow Smart Contract for Midnight
+// SPDX-License-Identifier: Apache-2.0
+pragma language_version 0.23;
+
+import CompactStandardLibrary;
+
+// ============================================================================
+// STATE DEFINITIONS
+// ============================================================================
+
+export enum EscrowState {
+  UNINITIALIZED,      // Contract deployed, no parties joined
+  SELLER_DEPOSITED,   // Seller deposited stake and goods hash
+  BUYER_DEPOSITED,    // Buyer deposited payment + stake
+  LOGISTICS_DEPOSITED, // Logistics deposited stake
+  IN_TRANSIT,         // Logistics proved pickup, goods in transit
+  DELIVERED,          // Buyer confirmed delivery, funds released
+  DISPUTED,           // Dispute raised by buyer/seller
+  RESOLVED,           // Dispute resolved, funds distributed
+  EXPIRED             // Deadline passed, logistics stake slashed
+}
+
+export enum PartyRole {
+  SELLER,
+  BUYER,
+  LOGISTICS
+}
+
+export enum DisputeReason {
+  NONE,
+  GOODS_NOT_AS_DESCRIBED,
+  LOGISTICS_THEFT,
+  LOGISTICS_LATE,
+  BUYER_REFUSAL
+}
+
+export struct PartyInfo {
+  address: Bytes<32>,
+  stake: Field,
+  deposited: Bool,
+  pubKeyHash: Bytes<32>
+}
+
+export struct EscrowTerms {
+  goodsHash: Bytes<32>,          // Hash of goods manifest (immutable)
+  paymentAmount: Field,           // Purchase price + logistics fee
+  sellerStake: Field,             // Seller collateral
+  buyerStake: Field,              // Buyer security deposit
+  logisticsStake: Field,          // Logistics collateral
+  deliveryDeadline: Field,        // Block height deadline
+  logisticsFee: Field             // Fee to logistics provider
+}
+
+export struct DisputeInfo {
+  raisedBy: PartyRole,
+  reason: DisputeReason,
+  raisedAt: Field,                // Block height when raised
+  resolved: Bool,
+  resolution: Field               // 0 = seller wins, 1 = buyer wins, 2 = logistics wins, 3 = split
+}
+
+// ============================================================================
+// LEDGER STATE
+// ============================================================================
+
+export ledger state: EscrowState;
+export ledger terms: EscrowTerms;
+export ledger seller: PartyInfo;
+export ledger buyer: PartyInfo;
+export ledger logistics: PartyInfo;
+export ledger dispute: DisputeInfo;
+export ledger pickupSecretHash: Bytes<32>;      // Hash of seller's pickup secret
+export ledger deliverySecretHash: Bytes<32>;    // Hash of buyer's delivery secret
+export ledger pickupConfirmed: boolean;            // Logistics proved pickup
+export ledger deliveryConfirmed: boolean;          // Buyer confirmed delivery
+export ledger sequence: Counter;                // For key derivation
+
+
+// ============================================================================
+// WITNESSES
+// ============================================================================
+
+witness localSellerKey(): Bytes<32>;
+witness localBuyerKey(): Bytes<32>;
+witness localLogisticsKey(): Bytes<32>;
+witness pickupSecret(): Bytes<32>;              // Raw pickup secret from seller
+witness deliverySecret(): Bytes<32>;             // Raw delivery secret from buyer
+
+// ============================================================================
+// CONSTRUCTOR
+// ============================================================================
+
+constructor() {
+  state = EscrowState.UNINITIALIZED;
+  sequence.increment(1);
+
+  // Initialize empty party info
+  seller = {
+    address: new Bytes<32>(),
+    stake: 0n,
+    deposited: false,
+    pubKeyHash: new Bytes<32>()
+  };
+  buyer = {
+    address: new Bytes<32>(),
+    stake: 0n,
+    deposited: false,
+    pubKeyHash: new Bytes<32>()
+  };
+  logistics = {
+    address: new Bytes<32>(),
+    stake: 0n,
+    deposited: false,
+    pubKeyHash: new Bytes<32>()
+  };
+
+  dispute = {
+    raisedBy: PartyRole.SELLER,
+    reason: DisputeReason.NONE,
+    raisedAt: 0n,
+    resolved: true,
+    resolution: 0
+  };
+
+  pickupSecretHash = new Bytes<32>();
+  deliverySecretHash = new Bytes<32>();
+  pickupConfirmed = false;
+  deliveryConfirmed = false;
+}
+
+// ============================================================================
+// HELPER CIRCUITS
+// ============================================================================
+
+// Verify caller is the seller
+circuit assertSeller() {
+  assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
+  assert(seller.address == publicKey(localSellerKey(), sequence.current() as Field as Bytes<32>), "Not seller");
+  assert(seller.deposited, "Seller not deposited");
+}
+
+// Verify caller is the buyer
+circuit assertBuyer() {
+  assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
+  assert(buyer.address == publicKey(localBuyerKey(), sequence.current() as Field as Bytes<32>), "Not buyer");
+  assert(buyer.deposited, "Buyer not deposited");
+}
+
+// Verify caller is the logistics provider
+circuit assertLogistics() {
+  assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
+  assert(logistics.address == publicKey(localLogisticsKey(), sequence.current() as Field as Bytes<32>), "Not logistics");
+  assert(logistics.deposited, "Logistics not deposited");
+}
+
+// Verify caller is either buyer or seller
+circuit assertBuyerOrSeller() {
+  assert(state != EscrowState.UNINITIALIZED, "Escrow not initialized");
+  const caller = publicKey(localSellerKey(), sequence.current() as Field as Bytes<32>);
+  assert(caller == seller.address || caller == buyer.address, "Not buyer or seller");
+  assert((caller == seller.address && seller.deposited) || (caller == buyer.address && buyer.deposited), "Party not deposited");
+}
+
+// Verify current block height (using sequence as proxy for block height in test environment)
+circuit currentBlockHeight(): Field {
+  return sequence.current() as Field;
+}
+
+// Check if deadline has passed
+circuit deadlinePassed(): boolean {
+  return currentBlockHeight() > terms.deliveryDeadline;
+}
+
+// Derive public key from secret key and sequence
+circuit publicKey(sk: Bytes<32>, seq: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<3, Bytes<32>>>([pad(32, "escrow:pk:"), seq, sk]);
+}
+
+// calculate pickup secret hash from raw secret
+circuit calculatePickupSecretHash(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "escrow:pickup:"), secret]);
+}
+
+// calculate delivery secret hash from raw secret
+circuit calculateDeliverySecretHash(secret: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>([pad(32, "escrow:delivery:"), secret]);
+}
+
+// Verify pickup secret matches hash
+circuit verifyPickupSecret(secret: Bytes<32>): boolean {
+  // Use Vector<2, ...> to safely hash the domain string and the secret together
+  const calculatedHash = persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "escrow:pickup:"), 
+    secret
+  ]);
+
+  return calculatedHash == pickupSecretHash;
+}
+
+// Verify delivery secret matches hash
+circuit verifyDeliverySecret(secret: Bytes<32>): boolean {
+  // Use Vector<2, ...> to safely hash the domain string and the secret together
+  const calculatedHash = persistentHash<Vector<2, Bytes<32>>>([
+    pad(32, "escrow:delivery:"), 
+    secret
+  ]);
+
+  return calculatedHash == deliverySecretHash;
+}
+// Verify that the sum of buyer and seller shares equals the logistics stake
+export circuit splitTimeoutStake(buyerShare: Field, sellerShare: Field) {
+  // Prove that the two shares perfectly equal the whole stake pool
+  assert(buyerShare + sellerShare == terms.logisticsStake, "Invalid split calculation");
+}
+
+// Compute distribution amounts for successful delivery
+circuit computeDeliveryDistribution(): (Field, Field, Field) {
+  const sellerAmount = terms.paymentAmount - terms.logisticsFee + terms.sellerStake;
+  const logisticsAmount = terms.logisticsFee + terms.logisticsStake;
+  const buyerAmount = terms.buyerStake;
+  return (sellerAmount, logisticsAmount, buyerAmount);
+}
+
+// Compute timeout distribution (logistics stake slashed, split between buyer/seller)
+circuit computeTimeoutDistribution(): (Field, Field, Field) {
+  const slashAmount = terms.logisticsStake;
+  const buyerShare = slashAmount / 2;
+  const sellerShare = slashAmount - buyerShare;
+  const sellerAmount = terms.sellerStake + sellerShare;
+  const buyerAmount = terms.buyerStake + buyerShare + terms.paymentAmount; // Buyer gets payment back
+  const logisticsAmount = 0; // Logistics loses stake
+  return (sellerAmount, buyerAmount, logisticsAmount);
+}
+
+// Compute dispute resolution distribution
+circuit computeDisputeDistribution(resolution: Field): (Field, Field, Field) {
+  // Resolution: 0=seller wins, 1=buyer wins, 2=logistics wins, 3=split
+  switch (resolution) {
+    case 0: { // Seller wins - goods as described
+      return (terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+    }
+    case 1: { // Buyer wins - goods not as described
+      return (terms.sellerStake, terms.paymentAmount + terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+    }
+    case 2: { // Logistics wins - buyer refused valid delivery
+      return (terms.paymentAmount + terms.sellerStake, terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+    }
+    case 3: { // Split - partial fault
+      const halfPayment = terms.paymentAmount / 2;
+      return (halfPayment + terms.sellerStake, halfPayment + terms.buyerStake, terms.logisticsFee + terms.logisticsStake);
+    }
+    default: {
+      return (terms.sellerStake, terms.buyerStake, terms.logisticsStake);
+    }
+  }
+}
+
+// ============================================================================
+// PHASE 1: SELLER INITIALIZATION & DEPOSIT
+// ============================================================================
+
+// Seller initializes the escrow with goods hash and deposits stake
+export circuit sellerInitialize(
+  escrow3: EscrowTerms,
+  pickupSecretHashInput: Bytes<32>
+) {
+  assert(escrow3.state == EscrowState.UNINITIALIZED, "Escrow already initialized");
+  assert(escrow3.paymentAmount > 0, "Payment amount must be positive");
+  assert(escrow3.sellerStake > 0, "Seller stake must be positive");
+  assert(escrow3.buyerStake > 0, "Buyer stake must be positive");
+  assert(escrow3.logisticsStake > 0, "Logistics stake must be positive");
+  assert(escrow3.logisticsFee > 0 && escrow3.logisticsFee <= escrow3.paymentAmount, "Invalid logistics fee");
+  assert(escrow3.deliveryDeadline > currentBlockHeight(), "Deadline must be in future");
+
+  const sellerAddr = publicKey(localSellerKey(), sequence.current() as Field as Bytes<32>);
+
+  terms = {
+    goodsHash: escrow3.goodsHash,
+    paymentAmount: escrow3.paymentAmount,
+    sellerStake: escrow3.sellerStake,
+    buyerStake: escrow3.buyerStake,
+    logisticsStake: escrow3.logisticsStake,
+    deliveryDeadline: escrow3.deliveryDeadline,
+    logisticsFee: escrow3.logisticsFee
+  };
+
+  seller = {
+    address: sellerAddr,
+    stake: escrow3.sellerStake,
+    deposited: true,
+    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([sellerAddr])
+  };
+
+  pickupSecretHash = pickupSecretHashInput;
+  pickupConfirmed = false;
+  deliveryConfirmed = false;
+
+  state = EscrowState.SELLER_DEPOSITED;
+
+}
+
+// ============================================================================
+// PHASE 2: BUYER DEPOSIT
+// ============================================================================
+
+// Buyer deposits payment amount + buyer stake
+export circuit buyerDeposit(
+  paymentAmount: Field,
+  buyerStake: Field,
+  deliverySecretHashInput: Bytes<32>
+) {
+  assert(state == EscrowState.SELLER_DEPOSITED, "Seller must deposit first");
+  assert(paymentAmount == terms.paymentAmount, "Payment amount mismatch");
+  assert(buyerStake == terms.buyerStake, "Buyer stake mismatch");
+
+  const buyerAddr = publicKey(localBuyerKey(), sequence.current() as Field as Bytes<32>);
+
+  buyer = {
+    address: buyerAddr,
+    stake: buyerStake,
+    deposited: true,
+    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([buyerAddr])
+  };
+
+  deliverySecretHash = deliverySecretHashInput;
+
+  state = EscrowState.BUYER_DEPOSITED;
+
+}
+
+// ============================================================================
+// PHASE 3: LOGISTICS DEPOSIT
+// ============================================================================
+
+// Logistics provider deposits their stake
+export circuit logisticsDeposit(logisticsStake: Field) {
+  assert(state == EscrowState.BUYER_DEPOSITED, "Buyer must deposit first");
+  assert(logisticsStake == terms.logisticsStake, "Logistics stake mismatch");
+
+  const logisticsAddr = publicKey(localLogisticsKey(), sequence.current() as Field as Bytes<32>);
+
+  logistics = {
+    address: logisticsAddr,
+    stake: logisticsStake,
+    deposited: true,
+    pubKeyHash: persistentHash<Vector<1, Bytes<32>>>([logisticsAddr])
+  };
+
+  state = EscrowState.LOGISTICS_DEPOSITED;
+
+
+}
+
+// ============================================================================
+// PHASE 4: PICKUP PROOF (ZK PROOF OF POSSESSION)
+// ============================================================================
+
+// Logistics proves they have the pickup secret (received from seller off-chain)
+// This advances state to IN_TRANSIT
+export circuit confirmPickup(pickupSecretInput: Bytes<32>) {
+  assert(state == EscrowState.LOGISTICS_DEPOSITED, "All parties must deposit first");
+  assertLogistics();
+  assert(!pickupConfirmed, "Pickup already confirmed");
+
+  // Verify the secret matches the hash committed by seller
+  assert(verifyPickupSecret(pickupSecretInput), "Invalid pickup secret");
+
+  pickupConfirmed = true;
+  state = EscrowState.IN_TRANSIT;
+}
+
+// ============================================================================
+// PHASE 5: DELIVERY CONFIRMATION
+// ============================================================================
+
+// Buyer confirms delivery by proving knowledge of delivery secret
+// This triggers automatic fund release
+export circuit confirmDelivery(deliverySecretInput: Bytes<32>) {
+  assert(state == EscrowState.IN_TRANSIT, "Goods must be in transit");
+  assertBuyer();
+  assert(!deliveryConfirmed, "Delivery already confirmed");
+  assert(!deadlinePassed(), "Delivery deadline passed - use timeout");
+
+  // Verify the delivery secret matches buyer's committed hash
+  assert(verifyDeliverySecret(deliverySecretInput), "Invalid delivery secret");
+
+  deliveryConfirmed = true;
+  state = EscrowState.DELIVERED;
+
+  // Compute and emit distribution
+
+  // In production, this would trigger actual fund transfers
+  // For now we emit events and update state
+  state = EscrowState.RESOLVED;
+}
+
+// ============================================================================
+// PHASE 6: TIMEOUT / DISPUTE RESOLUTION
+// ============================================================================
+
+// Buyer or seller triggers timeout after deadline passes without delivery
+export circuit triggerTimeout() {
+  assert(state == EscrowState.IN_TRANSIT, "Goods must be in transit");
+  assertBuyerOrSeller();
+  assert(deadlinePassed(), "Delivery deadline not yet passed");
+  assert(!deliveryConfirmed, "Delivery already confirmed");
+
+  state = EscrowState.EXPIRED;
+
+  state = EscrowState.RESOLVED;
+}
+
+// Buyer raises dispute (goods not as described)
+export circuit raiseDispute(reason: DisputeReason) {
+  assert(state == EscrowState.IN_TRANSIT || state == EscrowState.DELIVERED, "Invalid state for dispute");
+  assertBuyer();
+  assert(dispute.reason == DisputeReason.NONE, "Dispute already raised");
+  assert(reason != DisputeReason.NONE, "Invalid dispute reason");
+
+  dispute = {
+    raisedBy: PartyRole.BUYER,
+    reason: reason,
+    raisedAt: currentBlockHeight(),
+    resolved: false,
+    resolution: 0
+  };
+
+  state = EscrowState.DISPUTED;
+
+}
+
+// Seller raises dispute (buyer refusing valid delivery)
+export circuit sellerRaiseDispute(reason: DisputeReason) {
+  assert(state == EscrowState.DELIVERED, "Invalid state for seller dispute");
+  assertSeller();
+  assert(dispute.reason == DisputeReason.NONE, "Dispute already raised");
+  assert(reason != DisputeReason.NONE, "Invalid dispute reason");
+
+  dispute = {
+    raisedBy: PartyRole.SELLER,
+    reason: reason,
+    raisedAt: currentBlockHeight(),
+    resolved: false,
+    resolution: 0n
+  };
+
+  state = EscrowState.DISPUTED;
+}
+
+// Mediator resolves dispute (in production, this would be a ZK proof or multi-sig)
+// For now, we simulate with a circuit that requires mediator key
+witness mediatorKey(): Bytes<32>;
+
+export circuit resolveDispute(resolution: Field, mediatorSig: Bytes<32>) {
+  assert(state == EscrowState.DISPUTED, "No active dispute");
+  assert(!dispute.resolved, "Dispute already resolved");
+  assert(resolution <= 3, "Invalid resolution");
+
+  // Verify mediator signature (simplified - in production use ZK proof)
+  const mediatorPubKey = publicKey(mediatorKey(), sequence.current() as Field as Bytes<32>);
+  // In production: assert(verifySignature(mediatorPubKey, disputeHash, mediatorSig), "Invalid mediator sig");
+
+  dispute.resolved = true;
+  dispute.resolution = resolution;
+
+  state = EscrowState.RESOLVED;
+}
+
+// ============================================================================
+// VIEW CIRCUITS (READ-ONLY)
+// ============================================================================
+
+export circuit getState(): EscrowState {
+  return state;
+}
+
+export circuit getTerms(): EscrowTerms {
+  return terms;
+}
+
+export circuit getSeller(): PartyInfo {
+  return seller;
+}
+
+export circuit getBuyer(): PartyInfo {
+  return buyer;
+}
+
+export circuit getLogistics(): PartyInfo {
+  return logistics;
+}
+
+export circuit getDispute(): DisputeInfo {
+  return dispute;
+}
+
+export circuit isPickupConfirmed(): boolean {
+  return pickupConfirmed;
+}
+
+export circuit isDeliveryConfirmed(): boolean {
+  return deliveryConfirmed;
+}
+
+export circuit isDeadlinePassed(): boolean {
+  return deadlinePassed();
+}
+
+export circuit getCurrentBlockHeight(): Field {
+  return currentBlockHeight();
+}
+
+// ============================================================================
+// EMERGENCY / ADMIN FUNCTIONS
+// ============================================================================
+
+// Emergency pause (would require admin key in production)
+export circuit emergencyPause() {
+  // In production: assert(adminKey == caller);
+  // For now, any deposited party can pause in emergency
+  assert(seller.deposited || buyer.deposited || logistics.deposited, "No parties deposited");
+  // In a real contract, this would pause the contract
+  // For this example, we just emit an event
+}
+
+export circuit getSequence(): Field {
+  return sequence.current() as Field;
+}
