@@ -474,7 +474,7 @@ export circuit resolveDispute(resolution: Uint<64>, mediatorSig: Bytes<32>): [] 
     reason: dispute.reason,
     raisedAt: dispute.raisedAt,
     resolved: true,             // Updated property
-    resolution: resolution
+    resolution: disclose(resolution) // Updated property
     };
 
   state = EscrowState.RESOLVED;
