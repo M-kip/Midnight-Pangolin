@@ -16,6 +16,7 @@
 - [Overview](#overview)
 - [Escrow Model](#escrow-model)
 - [State Machine & Lifecycle](#state-machine--lifecycle)
+- [End-to-End Walkthrough](#end-to-end-walkthrough)
 - [Project Structure](#project-structure)
 - [Smart Contract Reference](#smart-contract-reference)
   - [Types](#types)
@@ -27,6 +28,7 @@
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Development](#development)
+- [Compiled Contract Artifacts](#compiled-contract-artifacts)
 - [Deployment](#deployment)
 - [Tooling](#tooling)
 - [Limitations & Notes](#limitations--notes)
@@ -57,15 +59,16 @@ contract and its zero‑knowledge artifacts, ready to be integrated into a Midni
 
 Each party joins sequentially and locks a stake. Two secrets underpin the physical hand‑offs:
 
-| Secret | Committed by | Revealed to | Proved by | Advances state to |
-|--------|--------------|-------------|-----------|-------------------|
-| Pickup secret | Seller (at init) | Logistics (off‑chain) | `confirmPickup` | `IN_TRANSIT` |
-| Delivery secret | Buyer (at init) | Buyer | `confirmDelivery` | `DELIVERED` → `RESOLVED` |
+| Secret | Origin | Committed at init by | Proved by | Advances state to |
+|--------|--------|----------------------|-----------|-------------------|
+| Pickup secret | Seller | Seller (`pickupSecret()` witness) | `confirmPickup` (logistics) | `IN_TRANSIT` |
+| Delivery secret | Buyer (shared with seller off‑chain) | Seller (`deliverySecret()` witness) | `confirmDelivery` (buyer) | `DELIVERED` → `RESOLVED` |
 
-The seller commits a `pickupSecretHash` and the buyer commits a `deliverySecretHash` in
-`sellerInitialize`. Logistics learns the raw pickup secret off‑chain from the seller; proving
-knowledge of it (without revealing it on‑chain) lets logistics mark the goods as picked up. The
-buyer later proves knowledge of the delivery secret to release funds.
+The seller supplies **both** secret values to `sellerInitialize` via the `pickupSecret()` and
+`deliverySecret()` witnesses: the pickup secret is the seller's own, while the delivery secret is
+the buyer's, shared with the seller off‑chain beforehand. Logistics later learns the raw pickup
+secret off‑chain from the seller; proving knowledge of it (without revealing it on‑chain) lets
+logistics mark the goods as picked up. The buyer proves knowledge of the delivery secret to settle.
 
 Stakes and payments are described by an immutable `EscrowTerms` struct set once at initialization.
 
@@ -78,7 +81,7 @@ Stakes and payments are described by an immutable `EscrowTerms` struct set once 
                  │
                  ▼
          UNINITIALIZED
-                 │  sellerInitialize(terms, pickupSecretHash, deliverySecretHash)
+                 │  sellerInitialize(terms, pickupSecret, deliverySecret)
                  ▼
        SELLER_DEPOSITED
                  │  buyerDeposit()
@@ -89,20 +92,18 @@ Stakes and payments are described by an immutable `EscrowTerms` struct set once 
      LOGISTICS_DEPOSITED
                  │  confirmPickup(pickupSecret)
                  ▼
-            IN_TRANSIT ──────┬───────────────────────────────┐
-                 │           │ raiseDispute(reason)          │ raiseDispute(reason)
-                 │           │ sellerRaiseDispute(reason)    │ (buyer/seller, after deadline)
-                 │           ▼                               │
-                 │      DISPUTED                            │ triggerTimeout()
-                 │           │ resolveDispute(resolution)   ▼
-                 │           ▼                         EXPIRED
-                 │      RESOLVED                            │
-                 │                                          ▼
-                 │                              (distribution computed) RESOLVED
+            IN_TRANSIT ──────────────────────────┬───────────────────────────┐
+                 │                                 │ raiseDispute(reason)      │ triggerTimeout()
+                 │                                 │ (buyer)                    │ (buyer/seller, after
+                 │                                 ▼                            │  deadline, undelivered)
+                 │                            DISPUTED                         ▼
+                 │                                 │ resolveDispute(res, sig) EXPIRED
+                 │                                 ▼                            │
+                 │                             RESOLVED  ◄───────────────── RESOLVED
                  │  confirmDelivery(deliverySecret)
                  ▼
-            DELIVERED
-                 │
+            DELIVERED  (transient)
+                 │  sellerRaiseDispute(reason) ───► DISPUTED  (see above)
                  ▼
              RESOLVED
 ```
@@ -127,6 +128,36 @@ which supports four outcomes:
 
 `DELIVERED` and `EXPIRED` are transient: the circuits that enter them immediately transition to
 `RESOLVED` in the same call.
+
+---
+
+## End-to-End Walkthrough
+
+A typical successful trade, mapping each on‑chain step to the circuit that performs it:
+
+1. **Deploy** — `constructor()` leaves the contract in `UNINITIALIZED`.
+2. **Seller initializes** (`sellerInitialize`) — the seller supplies the `EscrowTerms`, the pickup
+   secret, and the buyer's delivery secret (shared off‑chain beforehand) via witnesses. The seller's
+   address is derived from `localSellerKey`, and the secret hashes are committed. → `SELLER_DEPOSITED`.
+3. **Buyer deposits** (`buyerDeposit`) — registers the buyer (address derived from `localBuyerKey`)
+   and records the buyer's stake per the terms. → `BUYER_DEPOSITED`.
+4. **Logistics deposits** (`logisticsDeposit`) — registers the logistics provider (address from
+   `localLogisticsKey`) and records its stake. → `LOGISTICS_DEPOSITED`.
+5. **Pickup** (`confirmPickup`) — logistics proves knowledge of the seller's pickup secret (ZK);
+   the goods are marked in transit. → `IN_TRANSIT`.
+6. **Delivery** (`confirmDelivery`) — the buyer proves knowledge of the delivery secret *before* the
+   deadline; the delivery distribution is computed and the escrow settles. → `DELIVERED` → `RESOLVED`.
+
+If something goes wrong instead:
+
+- **Timeout** — once `deliveryDeadline` passes with no delivery, a buyer or seller calls
+  `triggerTimeout()` → `EXPIRED` → `RESOLVED` (the logistics stake is slashed and split).
+- **Dispute** — a buyer calls `raiseDispute` from `IN_TRANSIT`; a mediator then calls
+  `resolveDispute(resolution, mediatorSig)` to settle with outcome `0..3` → `RESOLVED`.
+
+> Actual coin movement is out of scope in the current implementation — the distribution circuits
+> *compute* what each party is owed, but settlement is represented by the state transition to
+> `RESOLVED`. See [Limitations & Notes](#limitations--notes).
 
 ---
 
@@ -241,9 +272,13 @@ plus the internal distribution calculators `computeDeliveryDistribution`,
 
 The contract relies on the following witnesses to supply private inputs at proof time:
 
-`localSellerKey`, `localBuyerKey`, `localLogisticsKey` (party secret keys), `pickupSecret`,
-`deliverySecret`, `disputeReason`, `disputeResolution`, `escrow3PartyTerms` (witnessed terms for
-`sellerInitialize`), and `mediatorKey` (used by `resolveDispute`).
+`localSellerKey`, `localBuyerKey`, `localLogisticsKey` (party secret keys), `pickupSecret` and
+`deliverySecret` (the raw pickup/delivery secrets committed at initialization), `escrow3PartyTerms`
+(witnessed `EscrowTerms` for `sellerInitialize`), and `mediatorKey` (used by `resolveDispute`).
+
+> **Note:** `sellerInitialize` still declares `pickupSecretHashInput` / `deliverySecretHashInput`
+> parameters, but it actually reads the secrets from the `pickupSecret()` / `deliverySecret()`
+> witnesses — the parameters are currently unused.
 
 ---
 
@@ -338,6 +373,23 @@ npm run build
 
 ---
 
+## Compiled Contract Artifacts
+
+Running `npm run compact` writes the compiler output under
+`contract/src/managed/escrow3party/`:
+
+- `contract/index.js` and `contract/index.d.ts` — JavaScript/TypeScript bindings for every circuit
+  (provers, verifiers, and the `Witnesses` type used to supply private inputs).
+- `keys/` — one `.prover` / `.verifier` pair per circuit (e.g. `sellerInitialize.prover`,
+  `confirmPickup.verifier`).
+- `zkir/` — the `.zkir` / `.bzkir` circuit descriptions used to generate and check proofs.
+
+These artifacts are committed so the package (`@midnight-pangolin/escrow3party`) can be imported by a
+Midnight DApp or deployment script without recompiling the ZK circuit. `npm run build` copies this
+`managed/` directory into `dist/` alongside the compiled TypeScript.
+
+---
+
 ## Deployment
 
 This repository contains the **contract and its compiled ZK artifacts**; it does not yet include a
@@ -376,6 +428,10 @@ witness interface.
   sum to the logistics stake, but `triggerTimeout` currently uses `logisticsStakeTimeOut` directly.
 - **Block height is a counter.** `currentBlockHeight()` reads the `sequence` ledger as a stand‑in for
   the real block height in the test environment.
+- **Seller disputes are effectively unreachable.** `sellerRaiseDispute` guards on
+  `state == DELIVERED`, but `confirmDelivery` transitions `DELIVERED → RESOLVED` within the same call,
+  so the contract never persists in `DELIVERED`. `raiseDispute` also accepts `DELIVERED`, yet no
+  circuit leaves the contract parked there. As written, disputes can only originate from `IN_TRANSIT`.
 
 ---
 
