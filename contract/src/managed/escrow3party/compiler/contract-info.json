@@ -707,6 +707,80 @@
       }
     },
     {
+      "name": "escrow3PartyTerms",
+      "arguments": [
+      ],
+      "result type": {
+        "type-name": "Struct",
+        "name": "EscrowTerms",
+        "elements": [
+          {
+            "name": "goodsHash",
+            "type": {
+              "type-name": "Bytes",
+              "length": 32
+            }
+          },
+          {
+            "name": "paymentAmount",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "paymentAmountSplit",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "sellerStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "buyerStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsStake",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsStakeTimeOut",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "deliveryDeadline",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          },
+          {
+            "name": "logisticsFee",
+            "type": {
+              "type-name": "Uint",
+              "maxval": 18446744073709551615
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "mediatorKey",
       "arguments": [
       ],

@@ -48,6 +48,7 @@ export type Witnesses<PS> = {
   localSellerKey(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
   localBuyerKey(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
   localLogisticsKey(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
+  escrow3PartyTerms(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, EscrowTerms];
   mediatorKey(context: __compactRuntime.WitnessContext<Ledger, PS>): [PS, Uint8Array];
 }
 
