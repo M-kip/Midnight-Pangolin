@@ -58,7 +58,7 @@ export struct DisputeInfo {
   reason: DisputeReason,
   raisedAt: Field,                // Block height when raised
   resolved: Boolean,
-  resolution: Field               // 0 = seller wins, 1 = buyer wins, 2 = logistics wins, 3 = split
+  resolution: Uint<64>               // 0 = seller wins, 1 = buyer wins, 2 = logistics wins, 3 = split
 }
 
 // ============================================================================
