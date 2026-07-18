@@ -47,6 +47,7 @@ export struct EscrowTerms {
   sellerStake: Field,             // Seller collateral
   buyerStake: Field,              // Buyer security deposit
   logisticsStake: Field,          // Logistics collateral
+  logisticsStakeTimeOut: Field,          // Logistics collateral split between buyer and seller in case of timeout
   deliveryDeadline: Field,        // Block height deadline
   logisticsFee: Field             // Fee to logistics provider
 }
@@ -211,10 +212,9 @@ circuit computeDeliveryDistribution(): [Field, Field, Field] {
 
 // Compute timeout distribution (logistics stake slashed, split between buyer/seller)
 circuit computeTimeoutDistribution(): [Field, Field, Field] {
-  const slashAmount = terms.logisticsStake;
-  const buyerShare = slashAmount / 2;
-  const sellerShare = slashAmount - buyerShare;
-  const sellerAmount = terms.sellerStake + sellerShare;
+  const buyerShare = terms.logisticsStakeTimeOut; // Buyer gets a share of logistics stake
+  const sellerShare = terms.logisticsStakeTimeOut; // Seller gets a share of logistics stake
+  const sellerAmount = terms.sellerStake + sellerShare; // Seller gets stake back + share of logistics stake
   const buyerAmount = terms.buyerStake + buyerShare + terms.paymentAmount; // Buyer gets payment back
   const logisticsAmount = 0; // Logistics loses stake
   return [sellerAmount, buyerAmount, logisticsAmount];
