@@ -96,22 +96,22 @@ constructor() {
 
   // Initialize empty party info
   seller = PartyInfo {
-    address: new Bytes<32>(),
+    address: Bytes<32>(),
     stake: 0n,
     deposited: false,
-    pubKeyHash: new Bytes<32>()
+    pubKeyHash: Bytes<32>()
   };
   buyer = PartyInfo {
-    address: new Bytes<32>(),
+    address: Bytes<32>(),
     stake: 0n,
     deposited: false,
-    pubKeyHash: new Bytes<32>()
+    pubKeyHash: Bytes<32>()
   };
   logistics = PartyInfo {
-    address: new Bytes<32>(),
+    address: Bytes<32>(),
     stake: 0n,
     deposited: false,
-    pubKeyHash: new Bytes<32>()
+    pubKeyHash: Bytes<32>()
   };
 
   dispute = DisputeInfo {
@@ -122,8 +122,8 @@ constructor() {
     resolution: 0
   };
 
-  pickupSecretHash = new Bytes<32>();
-  deliverySecretHash = new Bytes<32>();
+  pickupSecretHash = Bytes<32>();
+  deliverySecretHash = Bytes<32>();
   pickupConfirmed = false;
   deliveryConfirmed = false;
 }
