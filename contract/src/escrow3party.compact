@@ -466,7 +466,7 @@ export circuit resolveDispute(resolution: Uint<64>, mediatorSig: Bytes<32>): [] 
   assert(resolution <= 3, "Invalid resolution");
 
   // Verify mediator signature (simplified - in production use ZK proof)
-  const mediatorPubKey = publicKey(mediatorKey(), sequence.current() as Field as Bytes<32>);
+  const mediatorPubKey = publicKey(mediatorKey(), sequence as Field as Bytes<32>);
   // In production: assert(verifySignature(mediatorPubKey, disputeHash, mediatorSig), "Invalid mediator sig");
 
   dispute.resolved = true;
