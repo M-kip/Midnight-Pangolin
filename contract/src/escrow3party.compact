@@ -270,7 +270,7 @@ export circuit sellerInitialize(
   escrow3: EscrowTerms,
   pickupSecretHashInput: Bytes<32>
 ): []{
-  assert(escrow3.state == EscrowState.UNINITIALIZED, "Escrow already initialized");
+  assert(state == EscrowState.UNINITIALIZED, "Escrow already initialized");
   assert(escrow3.paymentAmount > 0, "Payment amount must be positive");
   assert(escrow3.sellerStake > 0, "Seller stake must be positive");
   assert(escrow3.buyerStake > 0, "Buyer stake must be positive");
