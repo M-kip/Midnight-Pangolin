@@ -14,8 +14,10 @@
 // the private state.
 //
 // SPDX-License-Identifier: GPL-3.0
-
+import * as esc3party from '../../contract/src/managed/escrow3party';
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
+import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
+import * as utils from './utils/index.js'; // Ensure your utils file provides the randomBytes function or any other utility functions you need
 import { type Logger } from 'pino';
 import {
     type EscrowProviders,
@@ -30,7 +32,9 @@ import {
     type EscrowTerms,
     type EscrowState,
     type DisputeReason,
+    createEscrowPrivateState,
 } from '../../contract/src/index.js';
+import { Escrow3PartyContractCompiled } from '../../contract/src/index.js'
 
 export interface Escrow3PartyApi {
     readonly deployedContractAddress: ContractAddress;
@@ -196,4 +200,118 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
         const tx = await this.deployedContract.callTx.emergencyPause();
         this.logger.info({ txId: toHex(tx.txId) }, 'Emergency pause executed');
     }
+
+        static async deploy(
+        providers: EscrowProviders,
+        logger: Logger,
+        escrowTerms: esc3party.EscrowTerms
+    ): Promise<Escrow3PartyApiInstance> {
+        logger.info('Initializing 3-party escrow contract deployment pipeline...');
+
+        // 1. Properly construct the immutable configuration terms object
+        const terms: esc3party.EscrowTerms = {
+            goodsHash: escrowTerms.goodsHash,
+            paymentAmount: escrowTerms.paymentAmount,
+            paymentAmountSplit: escrowTerms.paymentAmountSplit,
+            sellerStake: escrowTerms.sellerStake,
+            buyerStake: escrowTerms.buyerStake,
+            logisticsStake: escrowTerms.logisticsStake,
+            logisticsStakeTimeOut: escrowTerms.logisticsStakeTimeOut,
+            deliveryDeadline: escrowTerms.deliveryDeadline,
+            logisticsFee: escrowTerms.logisticsFee
+        };
+
+        // 2. Generate secure random byte keys instead of uninitialized zero-arrays (new Uint8Array(32))
+        // Empty zero-arrays will cause critical identity collisions in a real test or node runtime environment.
+        const initialPrivateState = createEscrowPrivateState({
+            sellerKey: utils.randomBytes(32),
+            buyerKey: utils.randomBytes(32),
+            logisticsKey: utils.randomBytes(32),
+            pickupSecret: utils.randomBytes(32),
+            deliverySecret: utils.randomBytes(32),
+            mediatorKey: utils.randomBytes(32),
+            terms: terms,
+        });
+
+        logger.trace('Private witness states generated. Submitting contract ledger transaction...');
+
+        // 3. Populate the deployment parameters required by the Midnight JS SDK
+        const deployedContract = await deployContract(providers, {
+            compiledContract: Escrow3PartyContractCompiled, // Pass your root compiled output artifact
+            privateStateId: escrowPrivateStateKey,        // Inform your provider database where to lock these secrets
+            initialPrivateState: initialPrivateState,       // Feed your private witnesses
+        });
+
+        logger.info(
+            { deployedContractAddress: deployedContract.deployedContractAddress }, 
+            'Escrow contract deployed successfully'
+        );
+
+        // 4. Return the fully configured API lifecycle engine
+        return new Escrow3PartyApiInstance(deployedContract, providers, logger);
+    }
+
+        /**
+     * FACTORY METHOD: Joins an existing, already deployed contract instance
+     * @param providers The wallet and network communication handles of the joining participant
+     * @param contractAddress The target contract address on the Midnight ledger
+     * @param logger Logging instance
+     */
+    static async join(
+        providers: EscrowProviders,
+        contractAddress: ContractAddress,
+        logger: Logger
+    ): Promise<Escrow3PartyApiInstance> {
+        logger.info({ contractAddress }, 'Attempting to attach to existing escrow contract address...');
+
+        // 1. Point your wallet's private state tracking layer to the target contract location
+        providers.privateStateProvider.setContractAddress(contractAddress);
+
+        // 2. Query the ledger history via the Midnight SDK to bind the target contract
+        const deployedContract = await findDeployedContract(providers, {
+            compiledContract: Escrow3PartyContractCompiled,
+            contractAddress: contractAddress,
+            privateStateId: escrowPrivateStateKey,
+        });
+
+        // 3. Fetch the current state snapshot to obtain the deployed immutable contract rules
+        const [ledger] = await deployedContract.state();
+
+        // 4. Check if this specific participant wallet already has an active private state.
+        // If they are joining for the first time, initialize their local private secrets.
+        let privateState = await providers.privateStateProvider.get<EscrowPrivateState>(escrowPrivateStateKey);
+        
+        if (!privateState) {
+            logger.trace('No local private state found for this contract. Initializing unique participant keys...');
+            
+            // Generate secure random keys matching the contract structural footprint.
+            // Note: The public 'terms' are synchronized directly out of the blockchain ledger snapshot!
+            privateState = createEscrowPrivateState({
+                sellerKey: utils.randomBytes(32),
+                buyerKey: utils.randomBytes(32),
+                logisticsKey: utils.randomBytes(32),
+                pickupSecret: utils.randomBytes(32),
+                deliverySecret: utils.randomBytes(32),
+                mediatorKey: utils.randomBytes(32),
+                terms: ledger.terms, // Synced from on-chain rules
+            });
+
+            // Persist the freshly generated secrets locally into this user's secure state database
+            await providers.privateStateProvider.set(escrowPrivateStateKey, privateState);
+        } else {
+            logger.trace('Existing private state footprint detected. Re-using active wallet secrets.');
+        }
+
+        logger.info({ contractAddress }, 'Successfully joined and synchronized contract state machine');
+
+        // 5. Instantiation of the same unified API wrapper engine
+        return new Escrow3PartyApiInstance(deployedContract, providers, logger);
+    }
 }
+// ============================================================================
+// GLOBAL PACKAGE MODULE EXPORTS (Must sit in file scope)
+// ============================================================================
+
+export * as utils from './utils/index.js';
+
+export * from './common-types.js';

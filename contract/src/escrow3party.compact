@@ -256,8 +256,6 @@ circuit computeDisputeDistribution(resolution: Field): [Field, Field, Field] {
 // Seller initializes the escrow with goods hash and deposits stake
 export circuit sellerInitialize(
   escrow3: EscrowTerms,
-  pickupSecretHashInput: Bytes<32>,
-  deliverySecretHashInput: Bytes<32>
 ): []{
   assert(state == EscrowState.UNINITIALIZED, "Escrow already initialized");
   assert(escrow3.paymentAmount > 0, "Payment amount must be positive");
