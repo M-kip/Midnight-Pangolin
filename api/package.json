@@ -2,7 +2,7 @@
   "name": "@midnight-pangolin/escrow3party-api",
   "version": "0.1.0",
   "author": "IOG",
-  "license": "MIT",
+  "license": "GPL-3.0",
   "private": true,
   "type": "module",
   "module": "./dist/index.js",

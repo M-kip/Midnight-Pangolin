@@ -1,0 +1,1 @@
+import * as esc3party from '../../contract/src/managed/escrow3party'
