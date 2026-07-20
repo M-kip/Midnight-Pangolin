@@ -24,7 +24,7 @@ import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-j
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
 
 // 3. Reactive, Utilities, and Diagnostic Logging engines
-import { map, tap, type Observable } from 'rxjs';
+import { combineLatest, map, from, tap, type Observable } from 'rxjs';
 import { type Logger } from 'pino';
 import * as utils from './utils/index.js'; 
 
@@ -38,6 +38,7 @@ import {
 
 // 5. Monorepo Level Contract Exports (Value Imports for Enums & Constants)
 import {
+    EscrowState,
     createEscrowPrivateState,        // 💡 Removed 'type' keyword so it can be checked as a value
     Escrow3PartyContractCompiled,   // 💡 Points directly to your cleanly mapped workspace index
 } from '@midnight-pangolin/contract';
@@ -45,8 +46,7 @@ import {
 import type {
     EscrowPrivateState,
     EscrowTerms,
-    DisputeReason,
-    EscrowState,
+    DisputeReason
 } from "@midnight-pangolin/contract"
 
 export interface Escrow3PartyApi {
@@ -84,20 +84,42 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
     constructor(
         private readonly deployedContract: DeployedEscrowContract,
         private readonly providers: EscrowProviders,
-        private readonly logger: Logger
+        private readonly logger?: Logger
     ) {
-        this.deployedContractAddress = deployedContract.deployedContractAddress;
+        // Bind the deployed contract address to the local private state provider so it can
+        // track the participant's wallet secrets for this specific contract instance.
+        this.deployedContractAddress = deployedContract.deployTxData.public.contractAddress;
+        providers.privateStateProvider.setContractAddress(this.deployedContractAddress);
 
+        // Stream 1: Tracks the public ledger state (e.g., Active, Completed, Disputed)
+        const publicLedger$ = providers.publicDataProvider.contractStateObservable(
+            this.deployedContractAddress,
+            { type: 'latest' }
+        );
+
+        // Stream 2: Tracks the local user's wallet secrets (e.g., Secret Keys, Passwords)
+        const localPrivateState$ = from (providers.privateStateProvider.get(escrowPrivateStateKey)) as Promise<EscrowPrivateState> | Observable<EscrowPrivateState>;
         // `state$` emits a `[ledger, privateState]` tuple; project it into the
         // UI-friendly `EscrowDerivedState`.
-        this.state$ = deployedContract.state$.pipe(
-            map(([ledger]) => ({
-                ledger,
-                sequence: ledger.sequence,
-                escrowState: ledger.state,
-                isInitialized: ledger.state !== EscrowState.UNINITIALIZED,
-            })),
-            tap((derivedState) => this.logger.debug({ derivedState }, 'Escrow ledger state updated'))
+        // `state$` emits a `[rawPublicState, rawPrivateState]` array packet; decode it safely.
+        this.state$ = combineLatest([publicLedger$, localPrivateState$]).pipe(
+            map(([publicState, privateState]) => {
+                // ✅ Decode the raw on-chain bytes using your contract's template mapping
+                const ledger = esc3party.ledger(publicState.data);
+                // ✅ Project the ledger + private state into a UI-friendly derived state
+                return {
+                    ledger,
+                    sequence: ledger.sequence,
+                    // Ensure you match the property names defined inside your contract
+                    escrowState: ledger.state, 
+                    isInitialized: ledger.state !== EscrowState.UNINITIALIZED,
+                    // You can now also inject fields from your privateState safely here
+                    hasPickupSecret: privateState?.pickupSecret !== undefined
+                };
+            }),
+            tap((derivedState) => {
+                this.logger?.debug({ derivedState }, 'Derived escrow state updated');
+            })
         );
     }
 
@@ -108,7 +130,7 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
      * witnesses.
      */
     async sellerInitialize(escrowTerms: EscrowTerms): Promise<void> {
-        this.logger.info('Initializing escrow contract as Seller...');
+        this.logger?.info('Initializing escrow contract as Seller...');
 
         const privateState = await this.providers.privateStateProvider.get<EscrowPrivateState>(escrowPrivateStateKey);
         if (!privateState) throw new Error('Failed to load escrow private state');
@@ -118,25 +140,25 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
             privateState.pickupSecret,
             privateState.deliverySecret
         );
-        this.logger.info({ txId: toHex(tx.txId) }, 'Seller initialization tx submitted');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Seller initialization tx submitted');
     }
 
     /**
      * PHASE 2: Buyer joins by depositing payment + stake.
      */
     async buyerDeposit(): Promise<void> {
-        this.logger.info('Buyer executing deposit...');
+        this.logger?.info('Buyer executing deposit...');
         const tx = await this.deployedContract.callTx.buyerDeposit();
-        this.logger.info({ txId: toHex(tx.txId) }, 'Buyer deposit confirmed');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Buyer deposit confirmed');
     }
 
     /**
      * PHASE 3: Logistics provider joins and stakes collateral.
      */
     async logisticsDeposit(): Promise<void> {
-        this.logger.info('Logistics provider joining contract escrow...');
+        this.logger?.info('Logistics provider joining contract escrow...');
         const tx = await this.deployedContract.callTx.logisticsDeposit();
-        this.logger.info({ txId: toHex(tx.txId) }, 'Logistics join stake confirmed');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Logistics join stake confirmed');
     }
 
     /**
@@ -144,9 +166,9 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
      * Must match the raw secret committed by the seller at initialization.
      */
     async confirmPickup(pickupSecret: Uint8Array): Promise<void> {
-        this.logger.info('Submitting pickup secret confirmation...');
+        this.logger?.info('Submitting pickup secret confirmation...');
         const tx = await this.deployedContract.callTx.confirmPickup(pickupSecret);
-        this.logger.info({ txId: toHex(tx.txId) }, 'Pickup milestone confirmed on-chain');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Pickup milestone confirmed on-chain');
     }
 
     /**
@@ -154,45 +176,45 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
      * Must match the raw secret committed by the seller at initialization.
      */
     async confirmDelivery(deliverySecret: Uint8Array): Promise<void> {
-        this.logger.info('Submitting delivery secret confirmation...');
+        this.logger?.info('Submitting delivery secret confirmation...');
         const tx = await this.deployedContract.callTx.confirmDelivery(deliverySecret);
-        this.logger.info({ txId: toHex(tx.txId) }, 'Delivery milestone confirmed on-chain');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Delivery milestone confirmed on-chain');
     }
 
     /**
      * ESCALATION 1: Trigger the timeout payout after the delivery deadline elapses.
      */
     async triggerTimeout(): Promise<void> {
-        this.logger.info('Evaluating timeline boundaries for deadline timeout...');
+        this.logger?.info('Evaluating timeline boundaries for deadline timeout...');
         const tx = await this.deployedContract.callTx.triggerTimeout();
-        this.logger.info({ txId: toHex(tx.txId) }, 'Timeout evaluation tx executed');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Timeout evaluation tx executed');
     }
 
     /**
      * ESCALATION 2: Buyer flags a problem (goods not as described, etc.).
      */
     async raiseDispute(reason: DisputeReason): Promise<void> {
-        this.logger.info({ reason }, 'Buyer initiating active dispute...');
+        this.logger?.info({ reason }, 'Buyer initiating active dispute...');
         const tx = await this.deployedContract.callTx.raiseDispute(reason);
-        this.logger.info({ txId: toHex(tx.txId) }, 'Buyer dispute claim active');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Buyer dispute claim active');
     }
 
     /**
      * ESCALATION 3: Seller flags a problem (buyer refusing valid delivery, etc.).
      */
     async sellerRaiseDispute(reason: DisputeReason): Promise<void> {
-        this.logger.info({ reason }, 'Seller initiating active dispute...');
+        this.logger?.info({ reason }, 'Seller initiating active dispute...');
         const tx = await this.deployedContract.callTx.sellerRaiseDispute(reason);
-        this.logger.info({ txId: toHex(tx.txId) }, 'Seller dispute claim active');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Seller dispute claim active');
     }
 
     /**
      * ARBITRATION: Mediator resolves an open dispute.
      */
     async resolveDispute(resolution: bigint, mediatorSig: Uint8Array): Promise<void> {
-        this.logger.info({ resolution }, 'Mediator executing dispute resolution...');
+        this.logger?.info({ resolution }, 'Mediator executing dispute resolution...');
         const tx = await this.deployedContract.callTx.resolveDispute(resolution, mediatorSig);
-        this.logger.info({ txId: toHex(tx.txId) }, 'Dispute results finalized');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Dispute results finalized');
     }
 
     /**
@@ -200,21 +222,21 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
      * logistics stake.
      */
     async splitTimeoutStake(buyerShare: bigint, sellerShare: bigint): Promise<void> {
-        this.logger.info({ buyerShare, sellerShare }, 'Splitting timeout stake...');
+        this.logger?.info({ buyerShare, sellerShare }, 'Splitting timeout stake...');
         const tx = await this.deployedContract.callTx.splitTimeoutStake(buyerShare, sellerShare);
-        this.logger.info({ txId: toHex(tx.txId) }, 'Timeout stake split confirmed');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Timeout stake split confirmed');
     }
 
     /**
      * ADMIN: Emergency pause.
      */
     async emergencyPause(): Promise<void> {
-        this.logger.info('Triggering emergency pause...');
+        this.logger?.info('Triggering emergency pause...');
         const tx = await this.deployedContract.callTx.emergencyPause();
-        this.logger.info({ txId: toHex(tx.txId) }, 'Emergency pause executed');
+        this.logger?.info({ txId: toHex(tx.txId) }, 'Emergency pause executed');
     }
 
-        static async deploy(
+    static async deploy(
         providers: EscrowProviders,
         logger: Logger,
         escrowTerms: esc3party.EscrowTerms
