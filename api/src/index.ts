@@ -15,7 +15,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0
 // 1. Managed smart contract circuit interfaces (Compiled out of compact)
-import * as esc3party from '@midnight-pangolin/contract';
+import * as esc3party from '@midnight-pangolin/contract/managed/escrow3party/contract';
 
 // 2. Midnight Protocol Core Types
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
