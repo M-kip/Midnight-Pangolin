@@ -21,8 +21,6 @@ import * as esc3party from '@midnight-pangolin/contract/managed/escrow3party/con
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 // 2. Midnight Protocol Core SDK
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
-import { toHex } from '@midnight-ntwrk/midnight-js-utils';
-
 // 3. Reactive, Utilities, and Diagnostic Logging engines
 import { combineLatest, map, from, tap, type Observable } from 'rxjs';
 import { type Logger } from 'pino';
