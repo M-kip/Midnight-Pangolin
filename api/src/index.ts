@@ -278,7 +278,7 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
         });
 
         logger.info(
-            { deployedContractAddress: deployedContract.deployedContractAddress }, 
+            { deployedContractAddress: deployedContract.deployTxData.public.contractAddress }, 
             'Escrow contract deployed successfully'
         );
 
@@ -310,11 +310,12 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
         });
 
         // 3. Fetch the current state snapshot to obtain the deployed immutable contract rules
-        const [ledger] = await deployedContract.state();
+        const contractStateData = await providers.publicDataProvider.watchForContractState(contractAddress);
+        const ledger = esc3party.ledger(contractStateData.data);
 
         // 4. Check if this specific participant wallet already has an active private state.
         // If they are joining for the first time, initialize their local private secrets.
-        let privateState = await providers.privateStateProvider.get<EscrowPrivateState>(escrowPrivateStateKey);
+        let privateState = await providers.privateStateProvider.get(escrowPrivateStateKey) as EscrowPrivateState;
         
         if (!privateState) {
             logger.trace('No local private state found for this contract. Initializing unique participant keys...');
