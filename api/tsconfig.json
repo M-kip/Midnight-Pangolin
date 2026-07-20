@@ -1,7 +1,7 @@
 {
   "include": ["src/**/*.ts", "src/test/jest.setup.ts"],
   "compilerOptions": {
-    // "rootDir": "src",
+    "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
     "lib": ["ESNext", "DOM"],
@@ -17,6 +17,11 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "../../contract/src/managed/*": [
+        "../contract/dist/managed/*"
+      ]
+    }
   }
 }

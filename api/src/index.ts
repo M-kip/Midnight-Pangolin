@@ -14,7 +14,7 @@
 // the private state.
 //
 // SPDX-License-Identifier: GPL-3.0
-import * as esc3party from '../../contract/src/managed/escrow3party';
+import * as esc3party from '@midnight-pangolin/contract/src/managed/escrow3party';
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import * as utils from './utils/index.js'; // Ensure your utils file provides the randomBytes function or any other utility functions you need
@@ -33,8 +33,8 @@ import {
     type EscrowState,
     type DisputeReason,
     createEscrowPrivateState,
-} from '../../contract/src/index.js';
-import { Escrow3PartyContractCompiled } from '../../contract/src/index.js'
+} from '@midnight-pangolin/contract/src/index.js';
+import { Escrow3PartyContractCompiled } from '@midnight-pangolin/contract/src/index.js'
 
 export interface Escrow3PartyApi {
     readonly deployedContractAddress: ContractAddress;

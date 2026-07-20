@@ -1,5 +1,5 @@
 {
-  "name": "@midnight-pangolin/escrow3party-api",
+  "name": "@midnight-pangolin/api",
   "version": "0.1.0",
   "author": "Bett Moses Kiprono",
   "license": "GPL-3.0",
@@ -13,5 +13,8 @@
     "ci": "npm run typecheck && npm run lint && npm run build",
     "lint": "eslint src",
     "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@midnight-pangolin/contract": "workspace:*"
   }
 }

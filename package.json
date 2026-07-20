@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "[![Midnight Network](https://img.shields.io/badge/Midnight-Network-blue?style=for-the-badge)](https://midnight.io)\r [![Compact](https://img.shields.io/badge/Compact-Language-2ea44f?style=for-the-badge)](https://docs.midnight.io)\r [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)\r [![Node.js](https://img.shields.io/badge/Node.js-20.x-68a063?style=for-the-badge&logo=nodedotjs)](https://nodejs.org/)\r [![GitHub stars](https://img.shields.io/github/stars/M-kip/Midnight-Pangolin?style=for-the-badge)](https://github.com/M-kip/Midnight-Pangolin/stargazers)\r [![GitHub forks](https://img.shields.io/github/forks/M-kip/Midnight-Pangolin?style=for-the-badge)](https://github.com/M-kip/Midnight-Pangolin/network/members)",
   "scripts": {
+    "build:contract": "pnpm --filter @midnight-pangolin/contract run build",
+    "build:api": "pnpm --filter @midnight-pangolin/api run build",
+    "build": "pnpm build:contract && pnpm build:api",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

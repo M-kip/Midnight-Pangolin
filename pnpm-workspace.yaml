@@ -6,4 +6,7 @@ allowBuilds:
   msgpackr-extract: true
   protobufjs: true
   ssh2: true
-onlyBuiltDependencies: classic-level
+
+packages:
+  - 'api'
+  - 'contract'
