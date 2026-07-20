@@ -1,0 +1,9 @@
+allowBuilds:
+  '@swc/core': true
+  classic-level: true
+  cpu-features: true
+  esbuild: true
+  msgpackr-extract: true
+  protobufjs: true
+  ssh2: true
+onlyBuiltDependencies: classic-level
