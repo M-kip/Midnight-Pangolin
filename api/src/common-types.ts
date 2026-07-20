@@ -14,7 +14,7 @@ import type {
   Contract,
   Witnesses,
   EscrowPrivateState,
-} from '@midnight-pangolin/contract/dist/index';
+} from '@midnight-pangolin/contract';
 
 // Storage key under which the off-chain private state is persisted (e.g. localStorage).
 export const escrowPrivateStateKey = 'escrowPrivateState';
