@@ -18,7 +18,7 @@ import * as Witnesses from "./witnesses.js";
 // The compiled, witness-wired contract. `name` is the on-chain contract identifier
 // (PascalCase of the `escrow3party` module); the asset path points at the directory
 // produced by `compact compile` (prover/verifier keys + ZKIR).
-export const Escrow3PartyContractComplied = CompiledContract.make<
+export const Escrow3PartyContractCompiled = CompiledContract.make<
   CompiledEscrow3PartyContract.Contract<Witnesses.EscrowPrivateState>
 >("Escrow3party", CompiledEscrow3PartyContract.Contract<Witnesses.EscrowPrivateState>).pipe(
   CompiledContract.withWitnesses(Witnesses.witnesses),

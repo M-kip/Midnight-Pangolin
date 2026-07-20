@@ -14,27 +14,36 @@
 // the private state.
 //
 // SPDX-License-Identifier: GPL-3.0
-import * as esc3party from '@midnight-pangolin/contract/src/managed/escrow3party';
+// 1. Managed smart contract circuit interfaces (Compiled out of compact)
+import * as esc3party from '@midnight-pangolin/contract';
+
+// 2. Midnight Protocol Core Types
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
-import * as utils from './utils/index.js'; // Ensure your utils file provides the randomBytes function or any other utility functions you need
+import { toHex } from '@midnight-ntwrk/midnight-js-utils';
+
+// 3. Reactive, Utilities, and Diagnostic Logging engines
+import { map, tap, type Observable } from 'rxjs';
 import { type Logger } from 'pino';
+import * as utils from './utils/index.js'; 
+
+// 4. Local API Domain boundary models (Relative internal resolution)
 import {
     type EscrowProviders,
     type DeployedEscrowContract,
     type EscrowDerivedState,
     escrowPrivateStateKey,
 } from './common-types.js';
-import { map, tap, type Observable } from 'rxjs';
-import { toHex } from '@midnight-ntwrk/midnight-js-utils';
+
+// 5. Monorepo Level Contract Exports (Value Imports for Enums & Constants)
 import {
     type EscrowPrivateState,
     type EscrowTerms,
-    type EscrowState,
     type DisputeReason,
     createEscrowPrivateState,
-} from '@midnight-pangolin/contract/src/index.js';
-import { Escrow3PartyContractCompiled } from '@midnight-pangolin/contract/src/index.js'
+    EscrowState,                    // 💡 Removed 'type' keyword so it can be checked as a value
+    Escrow3PartyContractCompiled,   // 💡 Points directly to your cleanly mapped workspace index
+} from '@midnight-pangolin/contract';
 
 export interface Escrow3PartyApi {
     readonly deployedContractAddress: ContractAddress;
