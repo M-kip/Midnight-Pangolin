@@ -20,7 +20,7 @@ import * as Witnesses from "./witnesses.js";
 // produced by `compact compile` (prover/verifier keys + ZKIR).
 export const Escrow3PartyContractCompiled = CompiledContract.make<
   CompiledEscrow3PartyContract.Contract<Witnesses.EscrowPrivateState>
->("Escrow3party", CompiledEscrow3PartyContract.Contract<Witnesses.EscrowPrivateState>).pipe(
+>("MidnightPangolinEscrow3party", CompiledEscrow3PartyContract.Contract<Witnesses.EscrowPrivateState>).pipe(
   CompiledContract.withWitnesses(Witnesses.witnesses),
   CompiledContract.withCompiledFileAssets("./managed/escrow3party"),
 );

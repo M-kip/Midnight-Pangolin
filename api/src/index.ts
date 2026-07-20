@@ -19,6 +19,7 @@ import * as esc3party from '@midnight-pangolin/contract/managed/escrow3party/con
 
 // 2. Midnight Protocol Core Types
 import { type ContractAddress } from '@midnight-ntwrk/midnight-js-protocol/compact-runtime';
+// 2. Midnight Protocol Core SDK
 import { deployContract, findDeployedContract } from '@midnight-ntwrk/midnight-js-contracts';
 import { toHex } from '@midnight-ntwrk/midnight-js-utils';
 
@@ -37,13 +38,16 @@ import {
 
 // 5. Monorepo Level Contract Exports (Value Imports for Enums & Constants)
 import {
-    type EscrowPrivateState,
-    type EscrowTerms,
-    type DisputeReason,
-    createEscrowPrivateState,
-    EscrowState,                    // 💡 Removed 'type' keyword so it can be checked as a value
+    createEscrowPrivateState,        // 💡 Removed 'type' keyword so it can be checked as a value
     Escrow3PartyContractCompiled,   // 💡 Points directly to your cleanly mapped workspace index
 } from '@midnight-pangolin/contract';
+
+import type {
+    EscrowPrivateState,
+    EscrowTerms,
+    DisputeReason,
+    EscrowState,
+} from "@midnight-pangolin/contract"
 
 export interface Escrow3PartyApi {
     readonly deployedContractAddress: ContractAddress;
