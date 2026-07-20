@@ -1,5 +1,5 @@
 {
-  "name": "pangolin-cli",
+  "name": "@midnight-pangolin/cli",
   "version": "1.0.0",
   "description": "CLI for Midnight Pangolin project",
   "type": "module",
