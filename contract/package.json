@@ -11,6 +11,12 @@
       "require": "./dist/index.js",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
+    },
+    "./managed/escrow3party/contract": {
+      "types": "./dist/managed/escrow3party/contract/index.d.ts",
+      "require": "./dist/managed/escrow3party/contract/index.js",
+      "import": "./dist/managed/escrow3party/contract/index.js",
+      "default": "./dist/managed/escrow3party/contract/index.js"
     }
   },
   "dependencies": {
