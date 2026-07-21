@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { fileURLToPath } from 'url';
 import {
   EnvironmentConfiguration,
   getTestEnvironment,
@@ -15,16 +16,16 @@ export interface Config {
   getEnvironment(logger: Logger): TestEnvironment;
   readonly generateDust: boolean;
 }
-
-export const currentDir = path.resolve(new URL(import.meta.url).pathname, '..');
+// Get file name of the current module (ESM) and resolve it to a directory path. This is used to construct paths for logs and ZK config files.
+export const currentDir = path.dirname(fileURLToPath(import.meta.url));
 
 export class StandaloneConfig implements Config {
   getEnvironment(logger: Logger): TestEnvironment {
     return getTestEnvironment(logger) as TestEnvironment;
   }
-  privateStateStoreName = 'bboard-private-state';
+  privateStateStoreName = 'escrowPrivateState';
   logDir = path.resolve(currentDir, '..', 'logs', 'standalone', `${new Date().toISOString()}.log`);
-  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
+  zkConfigPath = path.resolve('node_modules', '@midnight-pangolin', 'contract', 'dist', 'managed', 'escrow3party');
   generateDust = false;
 }
 
@@ -33,9 +34,9 @@ export class PreviewRemoteConfig implements Config {
     setNetworkId('preview');
     return new PreviewTestEnvironment(logger);
   }
-  privateStateStoreName = 'bboard-private-state';
+  privateStateStoreName = 'escrowPrivateState';
   logDir = path.resolve(currentDir, '..', 'logs', 'preview-remote', `${new Date().toISOString()}.log`);
-  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
+  zkConfigPath = path.resolve('node_modules', '@midnight-pangolin', 'contract', 'dist', 'managed', 'escrow3party');
   generateDust = true;
 }
 
@@ -44,9 +45,9 @@ export class PreprodRemoteConfig implements Config {
     setNetworkId('preprod');
     return new PreprodTestEnvironment(logger);
   }
-  privateStateStoreName = 'bboard-private-state';
+  privateStateStoreName = 'escrowPrivateState';
   logDir = path.resolve(currentDir, '..', 'logs', 'preprod-remote', `${new Date().toISOString()}.log`);
-  zkConfigPath = path.resolve(currentDir, '..', '..', 'contract', 'src', 'managed', 'bboard');
+  zkConfigPath = path.resolve('node_modules', '@midnight-pangolin', 'contract', 'dist', 'managed', 'escrow3party');
   generateDust = true;
 }
 
