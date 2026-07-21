@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "CLI for Midnight Pangolin project",
   "type": "module",
+  "license": "GPL-3.0",
+  "keywords": [],
+  "author": "Bett Moses Kiprono",
   "private": true,
   "scripts": {
     "build": "rm -rf dist && tsc --project tsconfig.build.json && cp -R ../contract/src/managed dist/contract/src/managed",
@@ -18,7 +21,8 @@
   "engines": {
     "node": ">=24.11.1"
   },
-  "license": "GPL-3.0",
-  "keywords": [],
-  "author": "Bett Moses Kiprono"
+  "devDependencies": {
+    "@types/json-schema": "^7.0.15",
+    "@types/node": "^25.9.5"
+  }
 }
