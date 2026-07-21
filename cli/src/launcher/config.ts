@@ -24,7 +24,7 @@ export class StandaloneConfig implements Config {
     return getTestEnvironment(logger) as TestEnvironment;
   }
   privateStateStoreName = 'escrowPrivateState';
-  logDir = path.resolve(currentDir, '..', 'logs', 'standalone', `${new Date().toISOString()}.log`);
+  logDir = path.resolve(currentDir, '..', 'logs', 'standalone', `${new Date().toISOString().replace(/:/g, '-')}.log`);
   zkConfigPath = path.resolve('node_modules', '@midnight-pangolin', 'contract', 'dist', 'managed', 'escrow3party');
   generateDust = false;
 }
@@ -35,7 +35,7 @@ export class PreviewRemoteConfig implements Config {
     return new PreviewTestEnvironment(logger);
   }
   privateStateStoreName = 'escrowPrivateState';
-  logDir = path.resolve(currentDir, '..', 'logs', 'preview-remote', `${new Date().toISOString()}.log`);
+  logDir = path.resolve(currentDir, '..', 'logs', 'preview-remote', `${new Date().toISOString().replace(/:/g, '-')}.log`);
   zkConfigPath = path.resolve('node_modules', '@midnight-pangolin', 'contract', 'dist', 'managed', 'escrow3party');
   generateDust = true;
 }
@@ -46,7 +46,7 @@ export class PreprodRemoteConfig implements Config {
     return new PreprodTestEnvironment(logger);
   }
   privateStateStoreName = 'escrowPrivateState';
-  logDir = path.resolve(currentDir, '..', 'logs', 'preprod-remote', `${new Date().toISOString()}.log`);
+  logDir = path.resolve(currentDir, '..', 'logs', 'preprod-remote', `${new Date().toISOString().replace(/:/g, '-')}.log`);
   zkConfigPath = path.resolve('node_modules', '@midnight-pangolin', 'contract', 'dist', 'managed', 'escrow3party');
   generateDust = true;
 }
