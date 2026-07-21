@@ -96,7 +96,7 @@ export class Escrow3PartyApiInstance implements Escrow3PartyApi {
         );
 
         // Stream 2: Tracks the local user's wallet secrets (e.g., Secret Keys, Passwords)
-        const localPrivateState$ = from (providers.privateStateProvider.get(escrowPrivateStateKey)) as Promise<EscrowPrivateState> | Observable<EscrowPrivateState>;
+        const localPrivateState$ = from(providers.privateStateProvider.get(escrowPrivateStateKey) as Promise<EscrowPrivateState>);
         // `state$` emits a `[ledger, privateState]` tuple; project it into the
         // UI-friendly `EscrowDerivedState`.
         // `state$` emits a `[rawPublicState, rawPrivateState]` array packet; decode it safely.
