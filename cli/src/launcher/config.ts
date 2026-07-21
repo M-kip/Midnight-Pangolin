@@ -72,7 +72,7 @@ export class PreviewTestEnvironment extends RemoteTestEnvironment {
       indexerWS: 'wss://indexer.preview.midnight.network/api/v4/graphql/ws',
       node: 'https://rpc.preview.midnight.network',
       nodeWS: 'wss://rpc.preview.midnight.network',
-      faucet: 'https://midnight-tmnight-preview.nethermind.dev/',
+      faucet: 'https://faucet.preview.midnight.network/api/drips',
       proofServer: this.getProofServerUrl(),
     };
   }
@@ -99,7 +99,7 @@ export class PreprodTestEnvironment extends RemoteTestEnvironment {
       indexerWS: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
       node: 'https://rpc.preprod.midnight.network',
       nodeWS: 'wss://rpc.preprod.midnight.network',
-      faucet: 'https://midnight-tmnight-preprod.nethermind.dev/',
+      faucet: 'https://faucet.preprod.midnight.network/api/drips',
       proofServer: this.getProofServerUrl(),
     };
   }
