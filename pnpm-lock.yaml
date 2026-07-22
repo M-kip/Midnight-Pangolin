@@ -150,6 +150,9 @@ importers:
       '@midnight-ntwrk/wallet-sdk-facade':
         specifier: ^4.0.1
         version: 4.0.1(supports-color@7.2.0)(ws@8.21.1)
+      '@midnight-ntwrk/wallet-sdk-hd':
+        specifier: ^3.0.2
+        version: 3.0.2
       '@midnight-ntwrk/wallet-sdk-shielded':
         specifier: ^3.0.1
         version: 3.0.1(supports-color@7.2.0)(ws@8.21.1)
